@@ -1,5 +1,5 @@
 {
-	"name": "optical-margin",
+	"name": "@liiift-studio/optical-margin",
 	"version": "0.0.1",
 	"description": "Font-metric hanging punctuation \u2014 cross-browser optical margin alignment using actual glyph bounds, not a lookup table",
 	"type": "module",
