@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 	openGraph: {
 		title: "Optical Margin — Font-metric hanging punctuation, cross-browser",
 		description: "Hanging punctuation that actually works — measured from font data, not guessed from lookup tables.",
-		url: "https://optical-margin.liiift.studio",
+		url: "https://opticalmargin.com",
 		siteName: "Optical Margin",
 		type: "website",
 	},
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 		title: "Optical Margin — Font-metric hanging punctuation, cross-browser",
 		description: "Hanging punctuation that actually works — measured from font data, not guessed from lookup tables.",
 	},
-	metadataBase: new URL("https://optical-margin.liiift.studio"),
+	metadataBase: new URL("https://opticalmargin.com"),
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

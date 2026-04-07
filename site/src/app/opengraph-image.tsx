@@ -34,7 +34,7 @@ export default async function Image() {
 						<span>Canvas measurement</span><span style={{ opacity: 0.4 }}>·</span>
 						<span>Cross-browser</span>
 					</div>
-					<div style={{ fontSize: 13, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.04em' }}>optical-margin.liiift.studio</div>
+					<div style={{ fontSize: 13, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.04em' }}>opticalmargin.com</div>
 				</div>
 			</div>
 		),
