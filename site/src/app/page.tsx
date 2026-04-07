@@ -1,0 +1,91 @@
+import Demo from "@/components/Demo"
+import CopyInstall from "@/components/CopyInstall"
+import CodeBlock from "@/components/CodeBlock"
+import { version } from "../../../package.json"
+
+export default function Home() {
+	return (
+		<main className="flex flex-col items-center px-6 py-20 gap-24">
+
+			{/* Hero */}
+			<section className="w-full max-w-2xl lg:max-w-5xl flex flex-col gap-6">
+				<div className="flex flex-col gap-2">
+					<p className="text-xs uppercase tracking-widest opacity-50">optical-margin</p>
+					<h1 className="text-4xl lg:text-8xl xl:text-9xl" style={{ fontFamily: "var(--font-merriweather), serif", lineHeight: "1.05em" }}>
+						Hang it right.<br />
+						<span style={{ opacity: 0.5, fontStyle: "italic" }}>Every font.</span>
+					</h1>
+				</div>
+				<div className="flex items-center gap-4">
+					<CopyInstall />
+					<a href="https://github.com/quitequinn/optical-margin" target="_blank" rel="noopener noreferrer" className="text-sm opacity-50 hover:opacity-100 transition-opacity">GitHub ↗</a>
+				</div>
+				<div className="flex flex-wrap gap-x-4 gap-y-1 text-xs opacity-50 tracking-wide">
+					<span>TypeScript</span><span>·</span><span>Canvas measurement</span><span>·</span><span>Cross-browser</span>
+				</div>
+				<p className="text-base opacity-60 leading-relaxed max-w-lg">
+					CSS <code className="text-xs font-mono opacity-80">hanging-punctuation</code> is Safari-only and has no weight control. Optical Margin measures each punctuation character&apos;s actual hang amount from Canvas font metrics and applies it as a margin. Works in every browser, with every font.
+				</p>
+			</section>
+
+			{/* Demo */}
+			<section className="w-full max-w-2xl lg:max-w-5xl flex flex-col gap-4">
+				<p className="text-xs uppercase tracking-widest opacity-50">Live demo — toggle the hangs</p>
+				<div className="rounded-xl -mx-8 px-8 py-8" style={{ background: "rgba(0,0,0,0.25)" }}>
+					<Demo />
+				</div>
+			</section>
+
+			{/* Explanation */}
+			<section className="w-full max-w-2xl lg:max-w-5xl flex flex-col gap-6">
+				<p className="text-xs uppercase tracking-widest opacity-50">Why not CSS?</p>
+				<div className="grid grid-cols-1 sm:grid-cols-2 gap-12 text-sm leading-relaxed opacity-70">
+					<div className="flex flex-col gap-3">
+						<p className="font-semibold opacity-100 text-base">hanging-punctuation is incomplete</p>
+						<p>The CSS property is Safari-only. It doesn&apos;t let you control hang amount, threshold, or which characters hang. And it uses hard-coded character tables, not the actual font metrics — so a T in one font hangs the same amount as a T in another.</p>
+					</div>
+					<div className="flex flex-col gap-3">
+						<p className="font-semibold opacity-100 text-base">Font-metric measurement</p>
+						<p>Canvas measureText returns both advance width and visual bounds. The difference is the optical hang amount — how far the character could move into the margin before it would look misaligned. This gives accurate results for every font without a lookup table.</p>
+					</div>
+				</div>
+			</section>
+
+			{/* Usage */}
+			<section className="w-full max-w-2xl lg:max-w-5xl flex flex-col gap-6">
+				<div className="flex items-baseline gap-4">
+					<p className="text-xs uppercase tracking-widest opacity-50">Usage</p>
+				</div>
+				<div className="flex flex-col gap-8 text-sm">
+					<div className="flex flex-col gap-3">
+						<p className="opacity-50">Drop-in component</p>
+						<CodeBlock code={`import { OpticalMarginText } from 'optical-margin'
+
+<OpticalMarginText hangStart={true} hangEnd={true}>
+  "Your paragraph text here..."
+</OpticalMarginText>`} />
+					</div>
+					<div className="flex flex-col gap-3">
+						<p className="opacity-50">Options</p>
+						<table className="w-full text-xs">
+							<thead><tr className="opacity-50 text-left"><th className="pb-2 pr-6 font-normal">Option</th><th className="pb-2 pr-6 font-normal">Default</th><th className="pb-2 font-normal">Description</th></tr></thead>
+							<tbody className="opacity-70">
+								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors"><td className="py-2 pr-6 font-mono">hangStart</td><td className="py-2 pr-6">true</td><td className="py-2">Hang opening punctuation at line starts.</td></tr>
+								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors"><td className="py-2 pr-6 font-mono">hangEnd</td><td className="py-2 pr-6">true</td><td className="py-2">Hang closing punctuation and sentence-end marks at line ends.</td></tr>
+								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors"><td className="py-2 pr-6 font-mono">threshold</td><td className="py-2 pr-6">0.5</td><td className="py-2">Minimum hang amount in px before applying.</td></tr>
+								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors"><td className="py-2 pr-6 font-mono">maxHangRatio</td><td className="py-2 pr-6">0.9</td><td className="py-2">Max proportion of advance width to hang (0–1).</td></tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
+
+			{/* Footer */}
+			<footer className="w-full max-w-2xl lg:max-w-5xl flex justify-between text-xs opacity-50 pt-8 border-t border-white/10">
+				<span>optical-margin v{version}</span>
+				<a href="https://liiift.studio" target="_blank" rel="noopener noreferrer" className="hover:opacity-100 transition-opacity">Liiift Studio</a>
+			</footer>
+
+		</main>
+	)
+}
