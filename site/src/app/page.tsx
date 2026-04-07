@@ -24,7 +24,7 @@ export default function Home() {
 					<span>TypeScript</span><span>·</span><span>Canvas measurement</span><span>·</span><span>Cross-browser</span>
 				</div>
 				<p className="text-base opacity-60 leading-relaxed max-w-lg">
-					CSS <code className="text-xs font-mono opacity-80">hanging-punctuation</code> is Safari-only and has no weight control. Optical Margin measures each punctuation character&apos;s actual hang amount from Canvas font metrics and applies it as a margin. Works in every browser, with every font.
+					CSS <code className="text-xs font-mono">hanging-punctuation</code> is Safari-only and has no weight control. Optical Margin measures each punctuation character&apos;s actual hang amount from Canvas font metrics and applies it as a margin. Works in every browser, with every font.
 				</p>
 			</section>
 
