@@ -4,7 +4,7 @@
 import { useState, useDeferredValue } from "react"
 import { OpticalMarginText } from "@liiift-studio/opticalmargin"
 
-const SAMPLE = `"Typography is the craft of endowing human language with a durable visual form," wrote Robert Bringhurst, — and that form begins at the margin. When a line opens with a quotation mark, the mark should hang in the margin so the first letter of the word aligns with the lines above and below it. When a line ends with a comma, the comma should similarly hang so the last letter — not the punctuation — forms the right edge. CSS hanging-punctuation does this in Safari only. Optical Margin does it everywhere, for every font, by measuring the actual hang amount from Canvas font data rather than guessing from a lookup table.`
+const SAMPLE = `"The best typography," wrote Jan Tschichold, "is invisible — it disappears into the reading." That is the paradox of the craft: the more perfectly it is executed, the less it is noticed. Every margin matters. Every spacing decision carries weight. "A quotation mark at the start of a line should hang," Bringhurst insists, "so that the letter, not the punctuation, holds the optical edge." The same applies to commas, dashes, periods — any mark smaller than a full letter. Hung correctly, the margin reads as a clean vertical. Left flush, it creates a slight indent that the eye registers as misalignment, even when the reader cannot name what bothers them. "It is a small thing," one might say — but in typography, every small thing is the thing.`
 
 /** Before/after toggle — left half = without effect, right half filled = with effect */
 function BeforeAfterToggle({ active, onClick }: { active: boolean; onClick: () => void }) {
@@ -50,7 +50,7 @@ export default function Demo() {
 	}
 
 	return (
-		<div className="w-full">
+		<div className="w-full" style={{ overflow: 'hidden' }}>
 			<div className="flex flex-wrap items-center gap-3 mb-8">
 				<span className="text-xs uppercase tracking-widest opacity-50">Hang</span>
 				<button
@@ -73,7 +73,7 @@ export default function Demo() {
 					<span className="tabular-nums text-xs opacity-50 text-right">{threshold}</span>
 				</div>
 			</div>
-			<div className="relative pb-8" style={{ overflow: 'hidden' }}>
+			<div className="relative pb-8">
 				<OpticalMarginText hangStart={dStart} hangEnd={dEnd} threshold={dThreshold} style={sampleStyle}>
 					{SAMPLE}
 				</OpticalMarginText>
