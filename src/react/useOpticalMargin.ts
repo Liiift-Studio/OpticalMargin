@@ -13,6 +13,8 @@ export function useOpticalMargin(options: OpticalMarginOptions) {
 	const optionsRef = useRef(options)
 	optionsRef.current = options
 
+	const { hangStart, hangEnd, threshold } = options
+
 	const run = useCallback(() => {
 		const el = ref.current
 		if (!el) return
@@ -20,7 +22,7 @@ export function useOpticalMargin(options: OpticalMarginOptions) {
 			originalHTMLRef.current = getCleanHTML(el)
 		}
 		applyOpticalMargin(el, originalHTMLRef.current, optionsRef.current)
-	}, [])
+	}, [hangStart, hangEnd, threshold])
 
 	useLayoutEffect(() => {
 		run()
