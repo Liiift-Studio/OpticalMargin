@@ -6,7 +6,8 @@ import { OpticalMarginText } from "@liiift-studio/opticalmargin"
 
 const SAMPLE = `"Typography is the craft of endowing human language with a durable visual form," wrote Robert Bringhurst, — and that form begins at the margin. When a line opens with a quotation mark, the mark should hang in the margin so the first letter of the word aligns with the lines above and below it. When a line ends with a comma, the comma should similarly hang so the last letter — not the punctuation — forms the right edge. CSS hanging-punctuation does this in Safari only. Optical Margin does it everywhere, for every font, by measuring the actual hang amount from Canvas font data rather than guessing from a lookup table.`
 
-function CompareButton({ active, onClick }: { active: boolean; onClick: () => void }) {
+/** Before/after toggle — left half = without effect, right half filled = with effect */
+function BeforeAfterToggle({ active, onClick }: { active: boolean; onClick: () => void }) {
 	return (
 		<button
 			onClick={onClick}
@@ -22,10 +23,10 @@ function CompareButton({ active, onClick }: { active: boolean; onClick: () => vo
 				cursor: 'pointer', transition: 'opacity 0.15s ease',
 			}}
 		>
-			<svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-				<circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1"/>
-				<path d="M7 1.5 A5.5 5.5 0 0 1 7 12.5 Z" fill="currentColor"/>
-				<line x1="7" y1="1.5" x2="7" y2="12.5" stroke="currentColor" strokeWidth="0.75" opacity="0.5"/>
+			<svg width="14" height="10" viewBox="0 0 14 10" fill="none">
+				<rect x="0.5" y="0.5" width="13" height="9" rx="1" stroke="currentColor" strokeWidth="1"/>
+				<line x1="7" y1="0.5" x2="7" y2="9.5" stroke="currentColor" strokeWidth="1"/>
+				<rect x="8" y="1.5" width="5" height="7" fill="currentColor"/>
 			</svg>
 		</button>
 	)
@@ -36,7 +37,7 @@ export default function Demo() {
 	const [hangStart, setHangStart] = useState(true)
 	const [hangEnd, setHangEnd] = useState(true)
 	const [threshold, setThreshold] = useState(0.5)
-	const [comparing, setComparing] = useState(false)
+	const [beforeAfter, setComparing] = useState(false)
 
 	const dStart = useDeferredValue(hangStart)
 	const dEnd = useDeferredValue(hangEnd)
@@ -76,10 +77,10 @@ export default function Demo() {
 				<OpticalMarginText hangStart={dStart} hangEnd={dEnd} threshold={dThreshold} style={sampleStyle}>
 					{SAMPLE}
 				</OpticalMarginText>
-				{comparing && (
+				{beforeAfter && (
 					<p aria-hidden style={{ ...sampleStyle, position: 'absolute', top: 0, left: 0, width: '100%', margin: 0, opacity: 0.25, pointerEvents: 'none' }}>{SAMPLE}</p>
 				)}
-				<CompareButton active={comparing} onClick={() => setComparing(v => !v)} />
+				<BeforeAfterToggle active={beforeAfter} onClick={() => setComparing(v => !v)} />
 			</div>
 			<p className="text-xs opacity-50 italic mt-6">
 				{hangStart && hangEnd ? 'Punctuation hangs at both margins.' : hangStart ? 'Punctuation hangs at the start margin only.' : hangEnd ? 'Punctuation hangs at the end margin only.' : 'Optical margin disabled — punctuation is flush.'}
