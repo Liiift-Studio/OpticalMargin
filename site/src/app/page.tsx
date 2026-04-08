@@ -67,6 +67,24 @@ export default function Home() {
 </OpticalMarginText>`} />
 					</div>
 					<div className="flex flex-col gap-3">
+						<p className="opacity-50">Hook</p>
+						<CodeBlock code={`import { useOpticalMargin } from '@liiift-studio/opticalmargin'
+
+const ref = useOpticalMargin({ hangStart: true, hangEnd: true })
+<p ref={ref}>{children}</p>`} />
+					</div>
+					<div className="flex flex-col gap-3">
+						<p className="opacity-50">Vanilla JS</p>
+						<CodeBlock code={`import { applyOpticalMargin, removeOpticalMargin, getCleanHTML } from '@liiift-studio/opticalmargin'
+
+const el = document.querySelector('p')
+const original = getCleanHTML(el)
+applyOpticalMargin(el, original, { hangStart: true, hangEnd: true })
+
+// Later — restore original:
+removeOpticalMargin(el, original)`} />
+					</div>
+					<div className="flex flex-col gap-3">
 						<p className="opacity-50">Options</p>
 						<table className="w-full text-xs">
 							<thead><tr className="opacity-50 text-left"><th className="pb-2 pr-6 font-normal">Option</th><th className="pb-2 pr-6 font-normal">Default</th><th className="pb-2 font-normal">Description</th></tr></thead>

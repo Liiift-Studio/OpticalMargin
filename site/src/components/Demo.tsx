@@ -1,7 +1,7 @@
 "use client"
 
 // Interactive demo for optical-margin — toggles hang at start/end and threshold
-import { useState, useDeferredValue } from "react"
+import { useState, useEffect, useDeferredValue } from "react"
 import { OpticalMarginText } from "@liiift-studio/opticalmargin"
 
 const SAMPLE = `"The best typography," wrote Jan Tschichold, "is invisible — it disappears into the reading." That is the paradox of the craft: the more perfectly it is executed, the less it is noticed. Every margin matters. Every spacing decision carries weight. "A quotation mark at the start of a line should hang," Bringhurst insists, "so that the letter, not the punctuation, holds the optical edge." The same applies to commas, dashes, periods — any mark smaller than a full letter. Hung correctly, the margin reads as a clean vertical. Left flush, it creates a slight indent that the eye registers as misalignment, even when the reader cannot name what bothers them. "It is a small thing," one might say — but in typography, every small thing is the thing.`
@@ -38,6 +38,11 @@ export default function Demo() {
 	const [hangEnd, setHangEnd] = useState(true)
 	const [threshold, setThreshold] = useState(0.5)
 	const [beforeAfter, setComparing] = useState(false)
+	const [fontsReady, setFontsReady] = useState(false)
+
+	useEffect(() => {
+		document.fonts.ready.then(() => setFontsReady(true))
+	}, [])
 
 	const dStart = useDeferredValue(hangStart)
 	const dEnd = useDeferredValue(hangEnd)
@@ -74,7 +79,7 @@ export default function Demo() {
 				</div>
 			</div>
 			<div className="relative pb-8">
-				<OpticalMarginText hangStart={dStart} hangEnd={dEnd} threshold={dThreshold} style={sampleStyle}>
+				<OpticalMarginText key={String(fontsReady)} hangStart={dStart} hangEnd={dEnd} threshold={dThreshold} style={sampleStyle}>
 					{SAMPLE}
 				</OpticalMarginText>
 				{beforeAfter && (
