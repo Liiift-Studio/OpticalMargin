@@ -167,4 +167,86 @@ describe('optical-margin', () => {
 		expect(el.querySelector('em')).toBeTruthy()
 		expect(el.querySelector('strong')).toBeTruthy()
 	})
+
+	// ── Test 11: opening single-quote hangs start ─────────────────────────────
+	it("opening single-quote (') hangs start", () => {
+		const el = makeElement("'Hello world.")
+		const original = getCleanHTML(el)
+		applyOpticalMargin(el, original, { hangStart: true, hangEnd: false, threshold: 0 })
+		const firstLine = el.querySelector<HTMLElement>(`.${OPTICAL_MARGIN_CLASSES.line}`)
+		expect(firstLine?.style.marginInlineStart).toMatch(/^-[\d.]+px$/)
+	})
+
+	// ── Test 12: opening parenthesis hangs start ──────────────────────────────
+	it('opening parenthesis hangs start', () => {
+		const el = makeElement('(Hello world.')
+		const original = getCleanHTML(el)
+		applyOpticalMargin(el, original, { hangStart: true, hangEnd: false, threshold: 0 })
+		const firstLine = el.querySelector<HTMLElement>(`.${OPTICAL_MARGIN_CLASSES.line}`)
+		expect(firstLine?.style.marginInlineStart).toMatch(/^-[\d.]+px$/)
+	})
+
+	// ── Test 13: comma at end hangs ───────────────────────────────────────────
+	it('comma at end of line gets negative marginInlineEnd', () => {
+		const el = makeElement('Hello world,')
+		const original = getCleanHTML(el)
+		applyOpticalMargin(el, original, { hangStart: false, hangEnd: true, threshold: 0 })
+		const lines = Array.from(el.querySelectorAll<HTMLElement>(`.${OPTICAL_MARGIN_CLASSES.line}`))
+		const last = lines[lines.length - 1]
+		expect(last?.style.marginInlineEnd).toMatch(/^-[\d.]+px$/)
+	})
+
+	// ── Test 14: colon at end hangs ───────────────────────────────────────────
+	it('colon at end of line gets negative marginInlineEnd', () => {
+		const el = makeElement('Hello world:')
+		const original = getCleanHTML(el)
+		applyOpticalMargin(el, original, { hangStart: false, hangEnd: true, threshold: 0 })
+		const lines = Array.from(el.querySelectorAll<HTMLElement>(`.${OPTICAL_MARGIN_CLASSES.line}`))
+		const last = lines[lines.length - 1]
+		expect(last?.style.marginInlineEnd).toMatch(/^-[\d.]+px$/)
+	})
+
+	// ── Test 15: high threshold prevents all hanging ─────────────────────────
+	// The mock canvas returns hangAmount = 3px. Threshold is in pixels, so any
+	// threshold > 3px suppresses hanging for all characters in the mock.
+	it('threshold above mock hangAmount prevents any hanging', () => {
+		const el = makeElement('\u201CHello world.')
+		const original = getCleanHTML(el)
+		applyOpticalMargin(el, original, { hangStart: true, hangEnd: true, threshold: 100 })
+		const lines = Array.from(el.querySelectorAll<HTMLElement>(`.${OPTICAL_MARGIN_CLASSES.line}`))
+		for (const line of lines) {
+			expect(line.style.marginInlineStart).toBe('')
+			expect(line.style.marginInlineEnd).toBe('')
+		}
+	})
+
+	// ── Test 16: getCleanHTML strips om-line class names after apply ──────────
+	it('getCleanHTML strips om-line spans from applied element', () => {
+		const el = makeElement('Hello world.')
+		const original = getCleanHTML(el)
+		applyOpticalMargin(el, original, {})
+		const cleaned = getCleanHTML(el)
+		expect(cleaned).not.toContain(OPTICAL_MARGIN_CLASSES.line)
+		expect(cleaned).not.toContain(OPTICAL_MARGIN_CLASSES.word)
+	})
+
+	// ── Test 17: applying twice from same original gives same line count ───────
+	it('applying twice from same original does not double line spans', () => {
+		const el = makeElement('Hello world.')
+		const original = getCleanHTML(el)
+		applyOpticalMargin(el, original, {})
+		const count1 = el.querySelectorAll(`.${OPTICAL_MARGIN_CLASSES.line}`).length
+		applyOpticalMargin(el, original, {})
+		const count2 = el.querySelectorAll(`.${OPTICAL_MARGIN_CLASSES.line}`).length
+		expect(count2).toBe(count1)
+	})
+
+	// ── Test 18: opening bracket '[' hangs start ──────────────────────────────
+	it("opening bracket '[' hangs start", () => {
+		const el = makeElement('[footnote] and more text here')
+		const original = getCleanHTML(el)
+		applyOpticalMargin(el, original, { hangStart: true, hangEnd: false, threshold: 0 })
+		const firstLine = el.querySelector<HTMLElement>(`.${OPTICAL_MARGIN_CLASSES.line}`)
+		expect(firstLine?.style.marginInlineStart).toMatch(/^-[\d.]+px$/)
+	})
 })
