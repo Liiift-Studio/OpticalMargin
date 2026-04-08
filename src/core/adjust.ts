@@ -19,29 +19,9 @@ const HANG_END_CHARS = new Set([
 	'.', ',', ';', ':', '!', '?',
 	'"', "'", '\u201D', '\u2019', '\u00BB',
 	'-', '\u2013', '\u2014',
+	'\u2026', // ellipsis (…)
 	')', ']',
 ])
-
-/**
- * Fallback hang ratios for common punctuation characters, used when Canvas is
- * unavailable (e.g. SSR / happy-dom without Canvas support).
- * Values represent the fraction of the advance width that may hang.
- */
-const FALLBACK_HANG_RATIOS: Record<string, number> = {
-	'.': 0.5,
-	',': 0.45,
-	';': 0.3,
-	':': 0.3,
-	'-': 0.8,
-	'\u2013': 0.8,
-	'\u2014': 0.9,
-	'"': 0.7,
-	"'": 0.6,
-	'\u201C': 0.7,
-	'\u201D': 0.7,
-	'\u2018': 0.6,
-	'\u2019': 0.6,
-}
 
 // ─── Canvas helpers ────────────────────────────────────────────────────────────
 
@@ -96,12 +76,8 @@ function measureOpticalHang(
 		}
 	}
 
-	// Fallback: no Canvas — use lookup table ratio × a rough advance estimate
-	const ratio = FALLBACK_HANG_RATIOS[char]
-	if (ratio === undefined) return 0
-	// Without Canvas we cannot know the advance width, so we return 0 here;
-	// callers can apply a font-size-based estimate if needed.
-	// Returning 0 is safe: no margin is applied rather than an incorrect one.
+	// No Canvas available (SSR / environments without Canvas support).
+	// Return 0 rather than a guessed value — no margin is safer than a wrong one.
 	return 0
 }
 

@@ -83,7 +83,7 @@ export default function Demo() {
 					{SAMPLE}
 				</OpticalMarginText>
 				{beforeAfter && (
-					<p aria-hidden style={{ ...sampleStyle, position: 'absolute', top: 0, left: 0, width: '100%', margin: 0, opacity: 0.25, pointerEvents: 'none' }}>{SAMPLE}</p>
+					<p aria-hidden style={{ ...sampleStyle, position: 'absolute', top: 0, left: 0, width: '100%', margin: 0, opacity: 0.45, pointerEvents: 'none' }}>{SAMPLE}</p>
 				)}
 				<BeforeAfterToggle active={beforeAfter} onClick={() => setComparing(v => !v)} />
 			</div>
