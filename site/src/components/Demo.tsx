@@ -11,6 +11,7 @@ export default function Demo() {
 	const [hangStart, setHangStart] = useState(true)
 	const [hangEnd, setHangEnd] = useState(true)
 	const [threshold, setThreshold] = useState(0.5)
+	const [comparing, setComparing] = useState(false)
 
 	const dStart = useDeferredValue(hangStart)
 	const dEnd = useDeferredValue(hangEnd)
@@ -45,21 +46,20 @@ export default function Demo() {
 					<input type="range" min={0} max={3} step={0.25} value={threshold} aria-label="Threshold" onChange={e => setThreshold(Number(e.target.value))} onTouchStart={e => e.stopPropagation()} style={{ touchAction: 'none' }} />
 					<span className="tabular-nums text-xs opacity-50 text-right">{threshold}</span>
 				</div>
+				<span className="text-xs uppercase tracking-widest opacity-50 ml-4">Compare</span>
+				<button onClick={() => setComparing(v => !v)} className="text-xs px-3 py-1 rounded-full border transition-opacity" style={{ borderColor: 'currentColor', opacity: comparing ? 1 : 0.5, background: comparing ? 'var(--btn-bg)' : 'transparent' }}>without</button>
 			</div>
-			<OpticalMarginText hangStart={dStart} hangEnd={dEnd} threshold={dThreshold} style={sampleStyle}>
-				{SAMPLE}
-			</OpticalMarginText>
+			<div className="relative">
+				<OpticalMarginText hangStart={dStart} hangEnd={dEnd} threshold={dThreshold} style={sampleStyle}>
+					{SAMPLE}
+				</OpticalMarginText>
+				{comparing && (
+					<p aria-hidden style={{ ...sampleStyle, position: 'absolute', top: 0, left: 0, width: '100%', margin: 0, opacity: 0.25, pointerEvents: 'none' }}>{SAMPLE}</p>
+				)}
+			</div>
 			<p className="text-xs opacity-50 italic mt-6">
 				{hangStart && hangEnd ? 'Punctuation hangs at both margins.' : hangStart ? 'Punctuation hangs at the start margin only.' : hangEnd ? 'Punctuation hangs at the end margin only.' : 'Optical margin disabled — punctuation is flush.'}
 			</p>
-			<div className="flex justify-end mt-8">
-				<div className="w-72 flex flex-col gap-2">
-					<span className="text-xs uppercase tracking-widest opacity-50">without</span>
-					<div className="rounded-lg p-3" style={{ background: "rgba(0,0,0,0.15)" }}>
-						<p style={{ ...sampleStyle, fontSize: "0.7rem", lineHeight: "1.8" }} className="opacity-60">{SAMPLE}</p>
-					</div>
-				</div>
-			</div>
 		</div>
 	)
 }
