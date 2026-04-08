@@ -59,7 +59,7 @@ export default function Home() {
 				<div className="flex flex-col gap-8 text-sm">
 					<div className="flex flex-col gap-3">
 						<p className="opacity-50">Drop-in component</p>
-						<CodeBlock code={`import { OpticalMarginText } from '@liiift-studio/optical-margin'
+						<CodeBlock code={`import { OpticalMarginText } from '@liiift-studio/opticalMargin'
 
 <OpticalMarginText hangStart={true} hangEnd={true}>
   "Your paragraph text here..."

@@ -2,7 +2,7 @@
 
 // Interactive demo for optical-margin — toggles hang at start/end and threshold
 import { useState, useDeferredValue } from "react"
-import { OpticalMarginText } from "@liiift-studio/optical-margin"
+import { OpticalMarginText } from "@liiift-studio/opticalMargin"
 
 const SAMPLE = `"Typography is the craft of endowing human language with a durable visual form," wrote Robert Bringhurst, — and that form begins at the margin. When a line opens with a quotation mark, the mark should hang in the margin so the first letter of the word aligns with the lines above and below it. When a line ends with a comma, the comma should similarly hang so the last letter — not the punctuation — forms the right edge. CSS hanging-punctuation does this in Safari only. Optical Margin does it everywhere, for every font, by measuring the actual hang amount from Canvas font data rather than guessing from a lookup table.`
 
