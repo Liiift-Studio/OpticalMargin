@@ -73,7 +73,7 @@ export default function Demo() {
 					<span className="tabular-nums text-xs opacity-50 text-right">{threshold}</span>
 				</div>
 			</div>
-			<div className="relative pb-8">
+			<div className="relative pb-8" style={{ overflow: 'hidden' }}>
 				<OpticalMarginText hangStart={dStart} hangEnd={dEnd} threshold={dThreshold} style={sampleStyle}>
 					{SAMPLE}
 				</OpticalMarginText>
