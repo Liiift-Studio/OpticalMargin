@@ -1,57 +1,23 @@
-# optical-margin
+# Optical Margin
 
-> Font-metric hanging punctuation — cross-browser optical margin alignment using actual glyph bounds, not a lookup table
+**[opticalmargin.com](https://opticalmargin.com)** · [npm](https://www.npmjs.com/package/@liiift-studio/opticalmargin) · [GitHub](https://github.com/Liiift-Studio/OpticalMargin)
 
-## Concept
-
-CSS hanging-punctuation is Safari-only with no weight control. Detects characters at line starts (opening quotes) and line ends (periods, commas, hyphens, closing quotes). Measures each character's actual visual bounding box vs advance width using Canvas measureText or opentype.js. Hang amount = advanceWidth - visualWidth — font-agnostic for any character in any language.
+---
 
 ## Install
 
 ```bash
-npm install optical-margin
+npm install @liiift-studio/opticalmargin
 ```
 
-## Usage
-
-### React
-
-```tsx
-import { OpticalMarginText } from 'optical-margin'
-
-<OpticalMarginText>
-  Your paragraph text here.
-</OpticalMarginText>
-```
-
-### Vanilla JS
-
-```ts
-import { applyOpticalMargin, getCleanHTML } from 'optical-margin'
-
-const el = document.querySelector('p')
-const original = getCleanHTML(el)
-applyOpticalMargin(el, original, { /* options */ })
-```
-
-## Options
-
-| Option | Description |
-|--------|-------------|
-| `hangStart` | boolean, default true |
-| `hangEnd` | boolean, default true |
-| `threshold` | minimum hang in px before applying |
-| `fontUrl` | optional, for sub-pixel glyph bounds via opentype.js |
-
-## Development
-
-```bash
-npm install
-npm test
-npm run build
-```
+See [opticalmargin.com](https://opticalmargin.com) for full API docs and a live demo.
 
 ---
 
-Part of the [Liiift Studio](https://liiift.studio) typography tools family.
-See also: [Ragtooth](https://ragtooth.liiift.studio)
+## Dev notes
+
+### `next` in root devDependencies
+
+`package.json` at the repo root lists `next` as a devDependency. This is a **Vercel detection workaround** — not a real dependency of the npm package. Vercel's build system inspects the root `package.json` to detect the framework; without `next` present it falls back to a static build and skips the Next.js pipeline, breaking the `/site` subdirectory deploy.
+
+The package itself has zero runtime dependencies. Do not remove this entry.
