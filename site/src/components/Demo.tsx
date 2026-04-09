@@ -1,6 +1,6 @@
 "use client"
 
-// Interactive demo for optical-margin — toggles hang at start/end and threshold
+// Interactive demo for optical-margin — toggles hang at start/end, threshold, and maxHangRatio
 import { useState, useEffect, useDeferredValue } from "react"
 import { OpticalMarginText } from "@liiift-studio/opticalmargin"
 
@@ -32,11 +32,12 @@ function BeforeAfterToggle({ active, onClick }: { active: boolean; onClick: () =
 	)
 }
 
-/** Demo component with live toggle controls for hangStart, hangEnd, and threshold */
+/** Demo component with live toggle controls for hangStart, hangEnd, threshold, and maxHangRatio */
 export default function Demo() {
 	const [hangStart, setHangStart] = useState(true)
 	const [hangEnd, setHangEnd] = useState(true)
 	const [threshold, setThreshold] = useState(0.5)
+	const [maxHangRatio, setMaxHangRatio] = useState(0.9)
 	const [beforeAfter, setComparing] = useState(false)
 	const [fontsReady, setFontsReady] = useState(false)
 
@@ -47,6 +48,7 @@ export default function Demo() {
 	const dStart = useDeferredValue(hangStart)
 	const dEnd = useDeferredValue(hangEnd)
 	const dThreshold = useDeferredValue(threshold)
+	const dMaxHangRatio = useDeferredValue(maxHangRatio)
 
 	const sampleStyle: React.CSSProperties = {
 		fontFamily: "var(--font-merriweather), serif",
@@ -77,9 +79,14 @@ export default function Demo() {
 					<input type="range" min={0} max={3} step={0.25} value={threshold} aria-label="Threshold" onChange={e => setThreshold(Number(e.target.value))} onTouchStart={e => e.stopPropagation()} style={{ touchAction: 'none' }} />
 					<span className="tabular-nums text-xs opacity-50 text-right">{threshold}</span>
 				</div>
+				<div className="flex flex-col gap-1 ml-4 min-w-32">
+					<span className="text-xs uppercase tracking-widest opacity-50">Max Hang Ratio</span>
+					<input type="range" min={0} max={1} step={0.05} value={maxHangRatio} aria-label="Max Hang Ratio" onChange={e => setMaxHangRatio(Number(e.target.value))} onTouchStart={e => e.stopPropagation()} style={{ touchAction: 'none' }} />
+					<span className="tabular-nums text-xs opacity-50 text-right">{maxHangRatio.toFixed(2)}</span>
+				</div>
 			</div>
 			<div className="relative pb-8">
-				<OpticalMarginText key={String(fontsReady)} hangStart={dStart} hangEnd={dEnd} threshold={dThreshold} style={sampleStyle}>
+				<OpticalMarginText key={String(fontsReady)} hangStart={dStart} hangEnd={dEnd} threshold={dThreshold} maxHangRatio={dMaxHangRatio} style={sampleStyle}>
 					{SAMPLE}
 				</OpticalMarginText>
 				{beforeAfter && (
