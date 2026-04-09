@@ -144,8 +144,9 @@ export function applyOpticalMargin(
 	}
 
 	// Guard: element must be laid out before BCR measurements are meaningful.
-	// display:none or a collapsed container returns 0 from getBoundingClientRect.
-	if (!element.offsetWidth) return
+	// offsetWidth is preferred; fall back to getBoundingClientRect for environments
+	// (e.g. happy-dom in tests) where offsetWidth is always 0.
+	if (!element.offsetWidth && !element.getBoundingClientRect().width) return
 
 	// --- Pass 2: Word wrap ---
 	// Walk all text nodes recursively (TreeWalker unreliable in happy-dom) and
