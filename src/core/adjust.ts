@@ -143,6 +143,10 @@ export function applyOpticalMargin(
 		return
 	}
 
+	// Guard: element must be laid out before BCR measurements are meaningful.
+	// display:none or a collapsed container returns 0 from getBoundingClientRect.
+	if (!element.offsetWidth) return
+
 	// --- Pass 2: Word wrap ---
 	// Walk all text nodes recursively (TreeWalker unreliable in happy-dom) and
 	// wrap each whitespace-delimited word in an om-word span. Inline elements
