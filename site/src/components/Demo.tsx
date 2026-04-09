@@ -57,7 +57,7 @@ export default function Demo() {
 	}
 
 	return (
-		<div className="w-full" style={{ overflow: 'hidden' }}>
+		<div className="w-full">
 			<div className="flex flex-wrap items-center gap-3 mb-8">
 				<span className="text-xs uppercase tracking-widest opacity-50">Hang</span>
 				<button
