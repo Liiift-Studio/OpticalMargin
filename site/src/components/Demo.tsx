@@ -94,7 +94,7 @@ export default function Demo() {
 				)}
 				<BeforeAfterToggle active={beforeAfter} onClick={() => setComparing(v => !v)} />
 			</div>
-			<p className="text-xs opacity-50 italic mt-6">
+			<p className="text-xs opacity-50 italic mt-8" style={{ lineHeight: "1.8" }}>
 				{hangStart && hangEnd ? 'Punctuation hangs at both margins.' : hangStart ? 'Punctuation hangs at the start margin only.' : hangEnd ? 'Punctuation hangs at the end margin only.' : 'Optical margin disabled — punctuation is flush.'}
 			</p>
 		</div>
