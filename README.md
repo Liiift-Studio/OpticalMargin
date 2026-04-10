@@ -66,7 +66,9 @@ removeOpticalMargin(el, original)
 
 ## How it works
 
-Canvas `measureText` returns both `width` (advance width) and `actualBoundingBoxLeft` / `actualBoundingBoxRight` (visual bounds). The difference between advance width and visual bounds is the optical overhang — how far a character sits inside its typographic cell. That value, clamped by `maxHangRatio` and `threshold`, is applied as a `margin-left` (start hang) or `margin-right` (end hang) on the first and last word of each detected line. The algorithm re-runs on resize and after fonts finish loading (`document.fonts.ready`).
+Canvas `measureText` returns both `width` (advance width) and `actualBoundingBoxLeft` / `actualBoundingBoxRight` (visual bounds). The difference between advance width and visual bounds is the optical overhang — how far a character's ink sits inside its typographic cell. That value, clamped by `maxHangRatio` and `threshold`, is applied as `margin-inline-start` (start hang) or `margin-inline-end` (end hang) on the line span wrapping each detected line. Using logical properties means the direction is correct in both LTR and RTL contexts. The algorithm re-runs on resize and after fonts finish loading (`document.fonts.ready`).
+
+The start character set includes: `"` `'` `"` `'` `«` `(` `[`. The end character set includes: `.` `,` `;` `:` `!` `?` `"` `'` `"` `'` `»` `-` `–` `—` `…` `)` `]`.
 
 ---
 
