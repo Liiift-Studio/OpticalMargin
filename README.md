@@ -100,6 +100,8 @@ Canvas `measureText` returns both `width` (advance width) and `actualBoundingBox
 
 Falls back to zero hang (no margin applied) in environments without Canvas support (e.g. SSR).
 
+**Line break safety:** Line breaks are locked to the browser's natural layout. Word breaks never change — the negative margins only affect the optical edge position, not line content or width.
+
 ---
 
 ## Dev notes
