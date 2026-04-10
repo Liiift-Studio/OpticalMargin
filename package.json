@@ -1,7 +1,7 @@
 {
 	"name": "@liiift-studio/opticalmargin",
-	"version": "0.0.20",
-	"description": "Font-metric hanging punctuation — cross-browser optical margin alignment using actual glyph bounds, not a lookup table",
+	"version": "1.0.0",
+	"description": "Font-metric hanging punctuation \u2014 cross-browser optical margin alignment using actual glyph bounds, not a lookup table",
 	"type": "module",
 	"main": "dist/index.cjs",
 	"module": "dist/index.js",
@@ -50,9 +50,14 @@
 		"typography",
 		"optical-margin",
 		"hanging-punctuation",
+		"font-metrics",
+		"canvas",
+		"cross-browser",
 		"typesetting",
+		"zero-dependencies",
 		"react",
-		"typescript"
+		"typescript",
+		"css"
 	],
 	"author": "Quinn Keaveney <quinn@liiift.studio>",
 	"license": "MIT",
