@@ -18,24 +18,31 @@ npm install @liiift-studio/opticalmargin
 
 ## Usage
 
+> **Next.js App Router:** this library uses browser APIs. Add `"use client"` to any component file that imports from it.
+
 ### React component
 
 ```tsx
 import { OpticalMarginText } from '@liiift-studio/opticalmargin'
 
-<OpticalMarginText hangStart={true} hangEnd={true}>
+<OpticalMarginText>
   "Typography is the craft of endowing human language with a durable visual form."
 </OpticalMarginText>
 ```
+
+Both `hangStart` and `hangEnd` default to `true`, so no props are required for standard use.
 
 ### React hook
 
 ```tsx
 import { useOpticalMargin } from '@liiift-studio/opticalmargin'
 
-const ref = useOpticalMargin({ hangStart: true, hangEnd: true })
-<blockquote ref={ref}>{children}</blockquote>
+// Inside a React component:
+const ref = useOpticalMargin()
+return <blockquote ref={ref}>{children}</blockquote>
 ```
+
+The hook re-runs automatically on resize via `ResizeObserver` and after fonts load via `document.fonts.ready`.
 
 ### Vanilla JS
 
@@ -44,10 +51,29 @@ import { applyOpticalMargin, removeOpticalMargin, getCleanHTML } from '@liiift-s
 
 const el = document.querySelector('blockquote')
 const original = getCleanHTML(el)
-applyOpticalMargin(el, original, { hangStart: true, hangEnd: true })
+const opts = { hangStart: true, hangEnd: true }
 
-// Later — restore original markup:
+function run() {
+  applyOpticalMargin(el, original, opts)
+}
+
+run()
+document.fonts.ready.then(run)
+
+const ro = new ResizeObserver(() => run())
+ro.observe(el)
+// Later: ro.disconnect()
+
+// Restore original markup if needed:
 removeOpticalMargin(el, original)
+```
+
+### TypeScript
+
+```ts
+import type { OpticalMarginOptions } from '@liiift-studio/opticalmargin'
+
+const opts: OpticalMarginOptions = { threshold: 1, maxHangRatio: 0.8 }
 ```
 
 ---
@@ -66,9 +92,13 @@ removeOpticalMargin(el, original)
 
 ## How it works
 
-Canvas `measureText` returns both `width` (advance width) and `actualBoundingBoxLeft` / `actualBoundingBoxRight` (visual bounds). The difference between advance width and visual bounds is the optical overhang — how far a character's ink sits inside its typographic cell. That value, clamped by `maxHangRatio` and `threshold`, is applied as `margin-inline-start` (start hang) or `margin-inline-end` (end hang) on the line span wrapping each detected line. Using logical properties means the direction is correct in both LTR and RTL contexts. The algorithm re-runs on resize and after fonts finish loading (`document.fonts.ready`).
+Canvas `measureText` returns both `width` (advance width) and `actualBoundingBoxLeft` / `actualBoundingBoxRight` (visual bounds). The difference between advance width and visual bounds is the optical overhang — how far a character's ink sits inside its typographic cell. That value, clamped by `maxHangRatio` and `threshold`, is applied as `margin-inline-start` (start hang) or `margin-inline-end` (end hang) on each line span. Using logical properties means the direction is correct in both LTR and RTL contexts. The algorithm re-runs on resize and after fonts finish loading (`document.fonts.ready`).
 
-The start character set includes: `"` `'` `"` `'` `«` `(` `[`. The end character set includes: `.` `,` `;` `:` `!` `?` `"` `'` `"` `'` `»` `-` `–` `—` `…` `)` `]`.
+**Start character set:** `"` `'` `"` `'` `«` `(` `[`
+
+**End character set:** `.` `,` `;` `:` `!` `?` `"` `'` `"` `'` `»` `-` `–` `—` `…` `)` `]`
+
+Falls back to zero hang (no margin applied) in environments without Canvas support (e.g. SSR).
 
 ---
 
@@ -87,7 +117,7 @@ The package itself has zero runtime dependencies. Do not remove this entry.
 - **Hanging numerals** — detect and hang numerals (`1`, `7`) that protrude into the margin at display sizes
 - **Configurable character set** — expose a `hangChars` option to override which characters are considered candidates, beyond the built-in punctuation list
 - **Per-side max hang** — separate `maxHangStart` / `maxHangEnd` ratios for asymmetric control
-- **RTL support** — swap start/end hang sides based on computed `direction` style
+- **RTL auto-detection** — automatically swap start/end hang sides based on the element's computed `direction` style
 - **Intersection Observer** — skip measurement for off-screen elements and re-run when they enter the viewport
 
 ---
