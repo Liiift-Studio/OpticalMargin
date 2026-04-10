@@ -62,10 +62,10 @@ document.fonts.ready.then(run)
 
 const ro = new ResizeObserver(() => run())
 ro.observe(el)
-// Later: ro.disconnect()
 
-// Restore original markup if needed:
-removeOpticalMargin(el, original)
+// Later — disconnect and restore original markup:
+// ro.disconnect()
+// removeOpticalMargin(el, original)
 ```
 
 ### TypeScript
