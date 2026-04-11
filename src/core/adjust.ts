@@ -23,6 +23,34 @@ const HANG_END_CHARS = new Set([
 	')', ']',
 ])
 
+/**
+ * Default hang fractions by character — editorial practice varies how deeply
+ * each punctuation mark is hung. Hyphens and dashes hang fully; commas and
+ * colons hang partially because their ink occupies more of the advance width.
+ */
+const DEFAULT_HANG_FRACTIONS: Record<string, number> = {
+	'-':       1.0,
+	'\u2013':  1.0, // en dash
+	'\u2014':  1.0, // em dash
+	'"':       0.8,
+	"'":       0.8,
+	'\u201C':  0.8, // left double quotation mark
+	'\u201D':  0.8, // right double quotation mark
+	'\u2018':  0.8, // left single quotation mark
+	'\u2019':  0.8, // right single quotation mark
+	'\u00AB':  0.8, // left-pointing double angle quotation mark
+	'\u00BB':  0.8, // right-pointing double angle quotation mark
+	'.':       0.8,
+	'!':       0.8,
+	'?':       0.8,
+	'\u2026':  0.8, // ellipsis (…)
+	')':       0.8,
+	']':       0.8,
+	',':       0.6,
+	';':       0.6,
+	':':       0.6,
+}
+
 // ─── Canvas helpers ────────────────────────────────────────────────────────────
 
 /**
@@ -127,10 +155,11 @@ export function applyOpticalMargin(
 ): void {
 	if (typeof window === 'undefined') return
 
-	const hangStart   = options.hangStart   ?? DEFAULTS.hangStart
-	const hangEnd     = options.hangEnd     ?? DEFAULTS.hangEnd
-	const threshold   = options.threshold   ?? DEFAULTS.threshold
+	const hangStart    = options.hangStart    ?? DEFAULTS.hangStart
+	const hangEnd      = options.hangEnd      ?? DEFAULTS.hangEnd
+	const threshold    = options.threshold    ?? DEFAULTS.threshold
 	const maxHangRatio = options.maxHangRatio ?? DEFAULTS.maxHangRatio
+	const hangFractions = options.hangFractions ?? DEFAULT_HANG_FRACTIONS
 
 	// Save scroll position — iOS Safari does not support overflow-anchor: none
 	const scrollY = window.scrollY
@@ -269,14 +298,18 @@ export function applyOpticalMargin(
 	const fragment = document.createDocumentFragment()
 
 	lineData.forEach(({ lineSpans, firstChar, lastChar }, lineIndex) => {
-		// Compute hang amounts
+		// Compute hang amounts, applying per-character fraction from hangFractions map
 		let startHang = 0
 		if (hangStart && firstChar && HANG_START_CHARS.has(firstChar)) {
-			startHang = measureOpticalHang(firstChar, fontStyle, canvas, maxHangRatio)
+			const raw = measureOpticalHang(firstChar, fontStyle, canvas, maxHangRatio)
+			const fraction = hangFractions[firstChar] ?? DEFAULT_HANG_FRACTIONS[firstChar] ?? 1.0
+			startHang = raw * fraction
 		}
 		let endHang = 0
 		if (hangEnd && lastChar && HANG_END_CHARS.has(lastChar)) {
-			endHang = measureOpticalHang(lastChar, fontStyle, canvas, maxHangRatio)
+			const raw = measureOpticalHang(lastChar, fontStyle, canvas, maxHangRatio)
+			const fraction = hangFractions[lastChar] ?? DEFAULT_HANG_FRACTIONS[lastChar] ?? 1.0
+			endHang = raw * fraction
 		}
 
 		const lineSpan = document.createElement('span')
