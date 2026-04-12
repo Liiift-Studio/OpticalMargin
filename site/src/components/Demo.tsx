@@ -1,12 +1,12 @@
 "use client"
 
-// Interactive demo for optical-margin — toggles hang at start/end, threshold, and maxHangRatio
+// Interactive demo for optical-margin — toggles hang at start/end, threshold, maxHangRatio, cursor/gyro, and compare
 import { useState, useEffect, useDeferredValue } from "react"
 import { OpticalMarginText } from "@liiift-studio/opticalmargin"
 
 const SAMPLE = `"The best typography," wrote Jan Tschichold, "is invisible — it disappears into the reading." That is the paradox of the craft: the more perfectly it is executed, the less it is noticed. Every margin matters. Every spacing decision carries weight. "A quotation mark at the start of a line should hang," Bringhurst insists, "so that the letter, not the punctuation, holds the optical edge." The same applies to commas, dashes, periods — any mark smaller than a full letter. Hung correctly, the margin reads as a clean vertical. Left flush, it creates a slight indent that the eye registers as misalignment, even when the reader cannot name what bothers them. "It is a small thing," one might say — but in typography, every small thing is the thing.`
 
-/** Before/after toggle — left half = without effect, right half filled = with effect */
+/** Before/after toggle — small icon anchored to bottom-right of the text area */
 function BeforeAfterToggle({ active, onClick }: { active: boolean; onClick: () => void }) {
 	return (
 		<button
@@ -32,7 +32,33 @@ function BeforeAfterToggle({ active, onClick }: { active: boolean; onClick: () =
 	)
 }
 
-/** Demo component with live toggle controls for hangStart, hangEnd, threshold, and maxHangRatio */
+/** Cursor arrow icon */
+function CursorIcon() {
+	return (
+		<svg width="11" height="14" viewBox="0 0 11 14" fill="currentColor" aria-hidden>
+			<path d="M0 0L0 11L3 8L5 13L6.8 12.3L4.8 7.3L8.5 7.3Z" />
+		</svg>
+	)
+}
+
+/** Gyroscope icon — circle with rotation arrow */
+function GyroIcon() {
+	return (
+		<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" aria-hidden>
+			<circle cx="7" cy="7" r="5.5" />
+			<circle cx="7" cy="7" r="1.5" fill="currentColor" stroke="none" />
+			<path d="M7 1.5 A5.5 5.5 0 0 1 12.5 7" strokeWidth="1.4" />
+			<path d="M11.5 5.5 L12.5 7 L13.8 6" strokeWidth="1.2" />
+		</svg>
+	)
+}
+
+/** Snap a value to the nearest 0.25 step within [0, 3] */
+function snapThreshold(v: number): number {
+	return Math.round(Math.max(0, Math.min(3, v)) * 4) / 4
+}
+
+/** Demo component with live controls for hangStart, hangEnd, threshold, maxHangRatio, cursor/gyro, and compare */
 export default function Demo() {
 	const [hangStart, setHangStart] = useState(true)
 	const [hangEnd, setHangEnd] = useState(true)
@@ -41,13 +67,98 @@ export default function Demo() {
 	const [beforeAfter, setComparing] = useState(false)
 	const [fontsReady, setFontsReady] = useState(false)
 
+	// Interaction modes — mutually exclusive
+	const [cursorMode, setCursorMode] = useState(false)
+	const [gyroMode, setGyroMode] = useState(false)
+
+	// Gyro-driven threshold — kept separate so slider value props stay frozen during gyro mode,
+	// which prevents mobile browsers from scrolling to the input on each orientation update
+	const [gyroThreshold, setGyroThreshold] = useState(0.5)
+
+	// Detected capabilities — resolved client-side after mount
+	const [showCursor, setShowCursor] = useState(false)
+	const [showGyro, setShowGyro] = useState(false)
+
 	useEffect(() => {
 		document.fonts.ready.then(() => setFontsReady(true))
 	}, [])
 
+	useEffect(() => {
+		const isHover = window.matchMedia('(hover: hover)').matches
+		const isTouch = window.matchMedia('(hover: none)').matches
+		setShowCursor(isHover)
+		setShowGyro(isTouch && 'DeviceOrientationEvent' in window)
+	}, [])
+
+	// Cursor mode — X position controls threshold (0–3, snapped to 0.25 steps)
+	useEffect(() => {
+		if (!cursorMode) return
+		const handleMove = (e: MouseEvent) => {
+			setThreshold(snapThreshold((e.clientX / window.innerWidth) * 3))
+		}
+		const handleKey = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') setCursorMode(false)
+		}
+		window.addEventListener('mousemove', handleMove)
+		window.addEventListener('keydown', handleKey)
+		return () => {
+			window.removeEventListener('mousemove', handleMove)
+			window.removeEventListener('keydown', handleKey)
+		}
+	}, [cursorMode])
+
+	// Gyro mode — gamma (left/right tilt) controls gyroThreshold (0–3, snapped to 0.25 steps).
+	// rAF throttle limits re-renders to one per frame.
+	useEffect(() => {
+		if (!gyroMode) return
+		let rafId: number | null = null
+		const handleOrientation = (e: DeviceOrientationEvent) => {
+			if (rafId !== null) return
+			rafId = requestAnimationFrame(() => {
+				rafId = null
+				if (e.gamma !== null) {
+					// gamma: -90 (tilt left) to 90 (tilt right) → threshold 0–3
+					setGyroThreshold(snapThreshold(((e.gamma + 90) / 180) * 3))
+				}
+			})
+		}
+		window.addEventListener('deviceorientation', handleOrientation)
+		return () => {
+			window.removeEventListener('deviceorientation', handleOrientation)
+			if (rafId !== null) cancelAnimationFrame(rafId)
+		}
+	}, [gyroMode])
+
+	// Toggle cursor mode — turns off gyro if active
+	const toggleCursor = () => {
+		setGyroMode(false)
+		setCursorMode(v => !v)
+	}
+
+	// Toggle gyro mode — requests iOS permission if needed, turns off cursor if active
+	const toggleGyro = async () => {
+		if (gyroMode) {
+			setGyroMode(false)
+			return
+		}
+		setCursorMode(false)
+		const DOE = DeviceOrientationEvent as typeof DeviceOrientationEvent & {
+			requestPermission?: () => Promise<PermissionState>
+		}
+		if (typeof DOE.requestPermission === 'function') {
+			const permission = await DOE.requestPermission()
+			if (permission === 'granted') setGyroMode(true)
+		} else {
+			setGyroMode(true)
+		}
+	}
+
+	// Effective threshold: gyro-driven when gyroMode is active, slider-driven otherwise
+	const effectiveThreshold = gyroMode ? gyroThreshold : threshold
+
 	const dStart = useDeferredValue(hangStart)
 	const dEnd = useDeferredValue(hangEnd)
-	const dThreshold = useDeferredValue(threshold)
+	const dThreshold = useDeferredValue(effectiveThreshold)
 	const dMaxHangRatio = useDeferredValue(maxHangRatio)
 
 	const sampleStyle: React.CSSProperties = {
@@ -56,6 +167,8 @@ export default function Demo() {
 		lineHeight: "1.8",
 		fontVariationSettings: '"wght" 300, "opsz" 18, "wdth" 100',
 	}
+
+	const activeMode = cursorMode || gyroMode
 
 	return (
 		<div className="w-full">
@@ -75,28 +188,117 @@ export default function Demo() {
 				>
 					End (closing quotes, commas)
 				</button>
+
+				{/* Prominent compare button — labeled, same style as hang toggles */}
+				<button
+					onClick={() => setComparing(v => !v)}
+					className="text-xs px-3 py-1 rounded-full border transition-opacity"
+					style={{ borderColor: 'currentColor', opacity: beforeAfter ? 1 : 0.5, background: beforeAfter ? 'var(--btn-bg)' : 'transparent' }}
+				>
+					{beforeAfter ? 'Hide compare' : 'Compare'}
+				</button>
+
 				<div className="flex flex-col gap-1 ml-4 min-w-32">
 					<span className="text-xs uppercase tracking-widest opacity-50">Threshold (px)</span>
-					<input type="range" min={0} max={3} step={0.25} value={threshold} aria-label="Threshold" onChange={e => setThreshold(Number(e.target.value))} onTouchStart={e => e.stopPropagation()} style={{ touchAction: 'none' }} />
-					<span className="tabular-nums text-xs opacity-50 text-right">{threshold}</span>
+					<input
+						type="range"
+						min={0}
+						max={3}
+						step={0.25}
+						value={threshold}
+						aria-label="Threshold"
+						onChange={e => setThreshold(Number(e.target.value))}
+						onTouchStart={e => e.stopPropagation()}
+						style={{ touchAction: 'none' }}
+					/>
+					<span className="tabular-nums text-xs opacity-50 text-right">{effectiveThreshold}</span>
 				</div>
 				<div className="flex flex-col gap-1 ml-4 min-w-32">
 					<span className="text-xs uppercase tracking-widest opacity-50">Max Hang Ratio</span>
-					<input type="range" min={0} max={1} step={0.05} value={maxHangRatio} aria-label="Max Hang Ratio" onChange={e => setMaxHangRatio(Number(e.target.value))} onTouchStart={e => e.stopPropagation()} style={{ touchAction: 'none' }} />
+					<input
+						type="range"
+						min={0}
+						max={1}
+						step={0.05}
+						value={maxHangRatio}
+						aria-label="Max Hang Ratio"
+						onChange={e => setMaxHangRatio(Number(e.target.value))}
+						onTouchStart={e => e.stopPropagation()}
+						style={{ touchAction: 'none' }}
+					/>
 					<span className="tabular-nums text-xs opacity-50 text-right">{maxHangRatio.toFixed(2)}</span>
 				</div>
+
+				{/* Cursor mode — desktop/hover-capable devices only */}
+				{showCursor && (
+					<button
+						onClick={toggleCursor}
+						title="Move your cursor left/right to adjust threshold"
+						className="flex items-center gap-1.5 text-xs px-3 py-1 rounded-full border transition-all"
+						style={{
+							borderColor: 'currentColor',
+							opacity: cursorMode ? 1 : 0.5,
+							background: cursorMode ? 'var(--btn-bg)' : 'transparent',
+						}}
+					>
+						<CursorIcon />
+						<span>{cursorMode ? 'Esc to exit' : 'Cursor'}</span>
+					</button>
+				)}
+
+				{/* Gyro mode — touch devices with DeviceOrientationEvent */}
+				{showGyro && (
+					<button
+						onClick={toggleGyro}
+						title="Tilt your device left/right to adjust threshold"
+						className="flex items-center gap-1.5 text-xs px-3 py-1 rounded-full border transition-all"
+						style={{
+							borderColor: 'currentColor',
+							opacity: gyroMode ? 1 : 0.5,
+							background: gyroMode ? 'var(--btn-bg)' : 'transparent',
+						}}
+					>
+						<GyroIcon />
+						<span>{gyroMode ? 'Tilt active' : 'Tilt'}</span>
+					</button>
+				)}
 			</div>
+
 			<div className="relative pb-8">
-				<OpticalMarginText key={String(fontsReady)} hangStart={dStart} hangEnd={dEnd} threshold={dThreshold} maxHangRatio={dMaxHangRatio} style={sampleStyle}>
+				<OpticalMarginText
+					key={String(fontsReady)}
+					hangStart={dStart}
+					hangEnd={dEnd}
+					threshold={dThreshold}
+					maxHangRatio={dMaxHangRatio}
+					style={sampleStyle}
+				>
 					{SAMPLE}
 				</OpticalMarginText>
 				{beforeAfter && (
-					<p aria-hidden style={{ ...sampleStyle, position: 'absolute', top: 0, left: 0, width: '100%', margin: 0, opacity: 0.45, pointerEvents: 'none' }}>{SAMPLE}</p>
+					<p
+						aria-hidden
+						style={{ ...sampleStyle, position: 'absolute', top: 0, left: 0, width: '100%', margin: 0, opacity: 0.45, pointerEvents: 'none' }}
+					>
+						{SAMPLE}
+					</p>
 				)}
 				<BeforeAfterToggle active={beforeAfter} onClick={() => setComparing(v => !v)} />
 			</div>
+
 			<p className="text-xs opacity-50 italic mt-8" style={{ lineHeight: "1.8" }}>
-				{hangStart && hangEnd ? 'Punctuation hangs at both margins.' : hangStart ? 'Punctuation hangs at the start margin only.' : hangEnd ? 'Punctuation hangs at the end margin only.' : 'Optical margin disabled — punctuation is flush.'}
+				{activeMode
+					? cursorMode
+						? 'Move cursor left/right to adjust threshold. Press Esc to exit.'
+						: 'Tilt left/right to adjust threshold.'
+					: hangStart && hangEnd
+						? 'Punctuation hangs at both margins.'
+						: hangStart
+							? 'Punctuation hangs at the start margin only.'
+							: hangEnd
+								? 'Punctuation hangs at the end margin only.'
+								: 'Optical margin disabled — punctuation is flush.'
+				}
 			</p>
 		</div>
 	)
