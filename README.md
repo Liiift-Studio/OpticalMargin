@@ -1,5 +1,7 @@
 # Optical Margin
 
+[![npm](https://img.shields.io/npm/v/%40liiift-studio%2Fopticalmargin.svg)](https://www.npmjs.com/package/@liiift-studio/opticalmargin) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![part of liiift type-tools](https://img.shields.io/badge/liiift-type--tools-blueviolet)](https://github.com/Liiift-Studio/type-tools)
+
 CSS `hanging-punctuation` is Safari-only, uses hard-coded character tables, and gives no control over hang amount, threshold, or which characters hang. Optical Margin measures each punctuation character's actual hang amount from Canvas font metrics — not a lookup table — and applies it as a negative margin. Works in every browser, with every font.
 
 **[opticalmargin.com](https://opticalmargin.com)** · [npm](https://www.npmjs.com/package/@liiift-studio/opticalmargin) · [GitHub](https://github.com/Liiift-Studio/OpticalMargin)
