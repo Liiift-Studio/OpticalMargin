@@ -27,7 +27,7 @@ export default function Home() {
 					<span>TypeScript</span><span>·</span><span>Canvas measurement</span><span>·</span><span>Cross-browser</span>
 				</div>
 				<p className="text-base opacity-60 leading-relaxed max-w-lg">
-					CSS <code className="text-xs font-mono">hanging-punctuation</code> is Safari-only and has no weight control. Optical Margin measures each punctuation character&apos;s actual hang amount from Canvas font metrics and applies it as a margin. Works in every browser, with every font.
+					CSS <code className="text-xs font-mono">hanging-punctuation</code> is Safari-only and has no weight control. Optical Margin measures each punctuation character&rsquo;s actual hang amount from Canvas font metrics and applies it as a margin. Works in every browser, with every font.
 				</p>
 			</section>
 
@@ -45,7 +45,7 @@ export default function Home() {
 				<div className="prose-grid grid grid-cols-1 sm:grid-cols-2 gap-12 text-sm leading-relaxed opacity-70">
 					<div className="flex flex-col gap-3">
 						<p className="font-semibold opacity-100 text-base">hanging-punctuation is incomplete</p>
-						<p>The CSS property is Safari-only. It doesn&apos;t let you control hang amount, threshold, or which characters hang. And it uses hard-coded character tables, not the actual font metrics — so a T in one font hangs the same amount as a T in another.</p>
+						<p>The CSS property is Safari-only. It doesn&rsquo;t let you control hang amount, threshold, or which characters hang. And it uses hard-coded character tables, not the actual font metrics — so a T in one font hangs the same amount as a T in another.</p>
 					</div>
 					<div className="flex flex-col gap-3">
 						<p className="font-semibold opacity-100 text-base">Font-metric measurement</p>
