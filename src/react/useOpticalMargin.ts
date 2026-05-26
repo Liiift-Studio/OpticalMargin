@@ -27,6 +27,9 @@ export function useOpticalMargin(options: OpticalMarginOptions) {
 	useLayoutEffect(() => {
 		run()
 
+		const el = ref.current
+		if (!el) return
+
 		let lastWidth = 0
 		let rafId = 0
 		const ro = new ResizeObserver((entries) => {
