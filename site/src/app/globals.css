@@ -3,7 +3,7 @@
 @import "./base.css";
 
 :root {
-	--background: hsl(20, 55%, 9%);
-	--foreground: hsl(20, 15%, 92%);
-	--btn-bg: hsl(20, 33%, 17%);
+	--background: oklch(0.10 0.12 20);
+	--foreground: oklch(0.93 0.03 20);
+	--btn-bg: oklch(0.18 0.07 20);
 }
