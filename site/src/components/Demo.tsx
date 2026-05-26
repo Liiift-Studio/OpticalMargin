@@ -176,6 +176,7 @@ export default function Demo() {
 				<span className="text-xs uppercase tracking-widest opacity-50">Hang</span>
 				<button
 					onClick={() => setHangStart(v => !v)}
+					title={hangStart ? 'Disable hanging at the start margin — opening quotes will align flush with the text edge' : 'Enable hanging at the start margin — opening quotes protrude left so letters hold the optical edge'}
 					className="text-xs px-3 py-1 rounded-full border transition-opacity"
 					style={{ borderColor: 'currentColor', opacity: hangStart ? 1 : 0.5, background: hangStart ? 'var(--btn-bg)' : 'transparent' }}
 				>
@@ -183,6 +184,7 @@ export default function Demo() {
 				</button>
 				<button
 					onClick={() => setHangEnd(v => !v)}
+					title={hangEnd ? 'Disable hanging at the end margin — closing quotes and commas will align flush with the text edge' : 'Enable hanging at the end margin — closing quotes, commas, and periods protrude right so letters hold the optical edge'}
 					className="text-xs px-3 py-1 rounded-full border transition-opacity"
 					style={{ borderColor: 'currentColor', opacity: hangEnd ? 1 : 0.5, background: hangEnd ? 'var(--btn-bg)' : 'transparent' }}
 				>
@@ -192,6 +194,7 @@ export default function Demo() {
 				{/* Prominent compare button — labeled, same style as hang toggles */}
 				<button
 					onClick={() => setComparing(v => !v)}
+					title={beforeAfter ? 'Hide the unprocessed text overlay' : 'Overlay the original flush text to compare it against the optically-aligned version'}
 					className="text-xs px-3 py-1 rounded-full border transition-opacity"
 					style={{ borderColor: 'currentColor', opacity: beforeAfter ? 1 : 0.5, background: beforeAfter ? 'var(--btn-bg)' : 'transparent' }}
 				>
@@ -207,6 +210,7 @@ export default function Demo() {
 						step={0.25}
 						value={threshold}
 						aria-label="Threshold"
+						title="Minimum glyph width (in px) below which a punctuation mark is considered small enough to hang. Lower values hang more characters; higher values hang fewer."
 						onChange={e => setThreshold(Number(e.target.value))}
 						onTouchStart={e => e.stopPropagation()}
 						style={{ touchAction: 'none' }}
@@ -222,6 +226,7 @@ export default function Demo() {
 						step={0.05}
 						value={maxHangRatio}
 						aria-label="Max Hang Ratio"
+						title="Maximum fraction of a glyph's width that may protrude beyond the margin. 1.0 allows a full hang; 0.5 caps the overhang at half the glyph width, keeping very wide marks partially in-column."
 						onChange={e => setMaxHangRatio(Number(e.target.value))}
 						onTouchStart={e => e.stopPropagation()}
 						style={{ touchAction: 'none' }}
