@@ -3,6 +3,6 @@
 @import "./base.css";
 
 :root {
-	--background: hsl(160, 60%, 9%); /* hue 160° */
-	--btn-bg: hsl(160, 38%, 17%);
+	--background: hsl(153, 58%, 9%);
+	--btn-bg: hsl(153, 36%, 17%);
 }
