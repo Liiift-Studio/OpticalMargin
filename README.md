@@ -88,6 +88,7 @@ const opts: OpticalMarginOptions = { threshold: 1, maxHangRatio: 0.8 }
 | `hangEnd` | `true` | Hang closing punctuation and sentence-end marks at line ends |
 | `threshold` | `0.5` | Minimum hang amount in px before applying. Prevents near-zero corrections on characters that barely protrude |
 | `maxHangRatio` | `0.9` | Max proportion of the character's advance width to hang (0–1). Caps extreme hangs on very wide punctuation |
+| `hangFractions` | see below | Per-character hang fraction overrides. Keys are single characters; values are fractions of the measured hang to apply (0 = no hang, 1 = full hang). Default fractions: hyphens/dashes `1.0`, quotes/brackets `0.8`, periods/exclamations `0.8`, commas/colons `0.6` |
 | `as` | `'p'` | HTML element to render, e.g. `'blockquote'`, `'h1'`. *(React component only)* |
 
 ---
@@ -126,4 +127,4 @@ The package itself has zero runtime dependencies. Do not remove this entry.
 
 ---
 
-Current version: 0.1.6
+Current version: 1.0.13

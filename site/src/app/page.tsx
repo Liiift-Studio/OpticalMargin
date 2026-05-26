@@ -96,6 +96,7 @@ removeOpticalMargin(el, original)`} />
 								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors"><td className="py-2 pr-6 font-mono">hangEnd</td><td className="py-2 pr-6">true</td><td className="py-2">Hang closing punctuation and sentence-end marks at line ends.</td></tr>
 								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors"><td className="py-2 pr-6 font-mono">threshold</td><td className="py-2 pr-6">0.5</td><td className="py-2">Minimum hang amount in px before applying.</td></tr>
 								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors"><td className="py-2 pr-6 font-mono">maxHangRatio</td><td className="py-2 pr-6">0.9</td><td className="py-2">Max proportion of advance width to hang (0–1).</td></tr>
+								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors"><td className="py-2 pr-6 font-mono">hangFractions</td><td className="py-2 pr-6">—</td><td className="py-2">Per-character hang fraction overrides. Keys are single characters; values are 0–1. Defaults: hyphens/dashes 1.0, quotes/brackets 0.8, commas/colons 0.6.</td></tr>
 							</tbody>
 						</table>
 					</div>

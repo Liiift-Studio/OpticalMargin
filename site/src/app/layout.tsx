@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 export const metadata: Metadata = {
 	title: "Optical Margin — Font-metric hanging punctuation, cross-browser",
 	icons: { icon: "/icon.svg", shortcut: "/icon.svg", apple: "/icon.svg" },
-	description: "Optical Margin measures the actual hang amount of each punctuation character using Canvas, then applies it as a margin so quotes, commas and hyphens hang into the margin. Cross-browser, font-agnostic.",
+	description: "Font-metric hanging punctuation for every browser. Measures actual glyph bounds via Canvas and applies hanging margins — not a lookup table. Works with any font.",
 	keywords: ["optical margin", "hanging punctuation", "typography", "TypeScript", "npm", "canvas", "cross browser"],
 	openGraph: {
 		title: "Optical Margin — Font-metric hanging punctuation, cross-browser",
