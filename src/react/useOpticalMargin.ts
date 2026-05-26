@@ -36,7 +36,7 @@ export function useOpticalMargin(options: OpticalMarginOptions) {
 			cancelAnimationFrame(rafId)
 			rafId = requestAnimationFrame(run)
 		})
-		ro.observe(ref.current!)
+		ro.observe(el)
 		return () => {
 			ro.disconnect()
 			cancelAnimationFrame(rafId)
@@ -47,7 +47,7 @@ export function useOpticalMargin(options: OpticalMarginOptions) {
 	// Rerun after all fonts finish loading — measurements taken before font-swap
 	// produce wrong results (Canvas glyph metrics use the fallback font).
 	useEffect(() => {
-		document.fonts?.ready?.then(run)
+		document.fonts?.ready?.then(run).catch(() => {})
 	}, [run])
 
 	return ref

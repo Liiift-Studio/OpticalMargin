@@ -120,7 +120,7 @@ function measureOpticalHang(
 export function getCleanHTML(el: HTMLElement): string {
 	const clone = el.cloneNode(true) as HTMLElement
 	const injected = clone.querySelectorAll(
-		`.${OPTICAL_MARGIN_CLASSES.word}, .${OPTICAL_MARGIN_CLASSES.line}, .${OPTICAL_MARGIN_CLASSES.probe}`,
+		`.${OPTICAL_MARGIN_CLASSES.word}, .${OPTICAL_MARGIN_CLASSES.line}`,
 	)
 	injected.forEach((node) => {
 		const parent = node.parentNode

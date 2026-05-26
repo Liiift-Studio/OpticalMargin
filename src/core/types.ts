@@ -34,5 +34,4 @@ export interface OpticalMarginOptions {
 export const OPTICAL_MARGIN_CLASSES = {
 	word: 'om-word',
 	line: 'om-line',
-	probe: 'om-probe',
 } as const
