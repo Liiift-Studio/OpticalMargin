@@ -22,6 +22,7 @@ export const metadata: Metadata = {
 		description: "Hanging punctuation that actually works — measured from font data, not guessed from lookup tables.",
 	},
 	metadataBase: new URL("https://opticalmargin.com"),
+	alternates: { canonical: "https://opticalmargin.com" },
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
