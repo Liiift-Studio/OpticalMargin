@@ -1,6 +1,6 @@
 // optical-margin/src/__tests__/adjust.test.ts — core algorithm tests
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
-import { applyOpticalMargin, removeOpticalMargin, getCleanHTML } from '../core/adjust'
+import { applyOpticalMargin, removeOpticalMargin, getCleanHTML, _resetCanvasForTesting } from '../core/adjust'
 import { OPTICAL_MARGIN_CLASSES } from '../core/types'
 
 // ─── Canvas mock ──────────────────────────────────────────────────────────────
@@ -21,6 +21,11 @@ const mockCanvas = {
 	getContext: () => mockCtx,
 } as unknown as HTMLCanvasElement
 
+/** Canvas mock that returns null context — simulates Canvas-unavailable environments */
+const mockCanvasNoCtx = {
+	getContext: () => null,
+} as unknown as HTMLCanvasElement
+
 // ─── DOM measurement mock ─────────────────────────────────────────────────────
 // Container = 600px wide; word spans report a consistent top=0 (all on one line)
 // and a narrow width so they don't overflow the container.
@@ -34,10 +39,38 @@ function makeElement(html: string): HTMLElement {
 	return el
 }
 
+/**
+ * Overrides getBoundingClientRect so that word spans are distributed across two
+ * simulated lines. Words whose textContent starts with a line-2 marker character
+ * (i.e. those in the second half of a known word list) report top=20 instead of top=0.
+ * The caller controls which spans fall on line 2 via the `line2Words` set.
+ */
+function mockMultiLine(line2Words: Set<string>) {
+	vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+		const el = this as HTMLElement
+		const isWord = el.classList?.contains(OPTICAL_MARGIN_CLASSES.word)
+		if (isWord) {
+			const text = (el.textContent ?? '').trim()
+			const top = line2Words.has(text) ? 20 : 0
+			return {
+				width: 40, height: 20, top, left: 0, right: 40, bottom: top + 20, x: 0, y: top,
+				toJSON: () => ({}),
+			} as DOMRect
+		}
+		return {
+			width: CONTAINER_WIDTH, height: 40, top: 0, left: 0, right: CONTAINER_WIDTH, bottom: 40, x: 0, y: 0,
+			toJSON: () => ({}),
+		} as DOMRect
+	})
+}
+
 // ─── Tests ────────────────────────────────────────────────────────────────────
 describe('optical-margin', () => {
 	beforeEach(() => {
 		document.body.innerHTML = ''
+
+		// Reset module-level canvas singleton so each test gets a fresh canvas from the mock
+		_resetCanvasForTesting()
 
 		// Mock canvas creation — must happen before any call that could create a canvas
 		vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
@@ -248,5 +281,179 @@ describe('optical-margin', () => {
 		applyOpticalMargin(el, original, { hangStart: true, hangEnd: false, threshold: 0 })
 		const firstLine = el.querySelector<HTMLElement>(`.${OPTICAL_MARGIN_CLASSES.line}`)
 		expect(firstLine?.style.marginInlineStart).toMatch(/^-[\d.]+px$/)
+	})
+
+	// ── Test 19: multi-line — correct number of om-line spans ─────────────────
+	it('multi-line: produces two om-line spans when words span two visual lines', () => {
+		// Words: "Hello" "world" on line 1; "foo" "bar." on line 2
+		const el = makeElement('Hello world foo bar.')
+		const original = getCleanHTML(el)
+		mockMultiLine(new Set(['foo', 'bar.']))
+		applyOpticalMargin(el, original, { hangStart: false, hangEnd: false, threshold: 0 })
+		const lines = el.querySelectorAll(`.${OPTICAL_MARGIN_CLASSES.line}`)
+		expect(lines.length).toBe(2)
+	})
+
+	// ── Test 20: multi-line — br data-om inserted between lines ───────────────
+	it('multi-line: a br[data-om] separator is inserted between lines', () => {
+		const el = makeElement('Hello world foo bar.')
+		const original = getCleanHTML(el)
+		mockMultiLine(new Set(['foo', 'bar.']))
+		applyOpticalMargin(el, original, { hangStart: false, hangEnd: false, threshold: 0 })
+		const brs = el.querySelectorAll('br[data-om]')
+		expect(brs.length).toBe(1)
+	})
+
+	// ── Test 21: multi-line — line 2 start-hang char gets margin ─────────────
+	it('multi-line: opening quote at start of line 2 gets marginInlineStart', () => {
+		// Line 1: "Hello world"; line 2 starts with an opening curly quote
+		const el = makeElement('Hello world “foo bar.')
+		const original = getCleanHTML(el)
+		// "“foo" is the first word-span text on line 2
+		mockMultiLine(new Set(['“foo', 'bar.']))
+		applyOpticalMargin(el, original, { hangStart: true, hangEnd: false, threshold: 0 })
+		const lines = Array.from(el.querySelectorAll<HTMLElement>(`.${OPTICAL_MARGIN_CLASSES.line}`))
+		expect(lines.length).toBe(2)
+		expect(lines[1].style.marginInlineStart).toMatch(/^-[\d.]+px$/)
+	})
+
+	// ── Test 22: multi-line — line 1 end-hang char gets margin ───────────────
+	it('multi-line: period at end of line 1 gets marginInlineEnd', () => {
+		// Line 1 ends with "world."; line 2 is "foo bar"
+		const el = makeElement('Hello world. foo bar')
+		const original = getCleanHTML(el)
+		mockMultiLine(new Set(['foo', 'bar']))
+		applyOpticalMargin(el, original, { hangStart: false, hangEnd: true, threshold: 0 })
+		const lines = Array.from(el.querySelectorAll<HTMLElement>(`.${OPTICAL_MARGIN_CLASSES.line}`))
+		expect(lines.length).toBe(2)
+		expect(lines[0].style.marginInlineEnd).toMatch(/^-[\d.]+px$/)
+		// Line 2 ends with plain 'r' — no end-hang
+		expect(lines[1].style.marginInlineEnd).toBe('')
+	})
+
+	// ── Test 23: multi-line — getCleanHTML removes br data-om ────────────────
+	it('multi-line: getCleanHTML removes injected br[data-om] elements', () => {
+		const el = makeElement('Hello world foo bar.')
+		const original = getCleanHTML(el)
+		mockMultiLine(new Set(['foo', 'bar.']))
+		applyOpticalMargin(el, original, { hangStart: false, hangEnd: false, threshold: 0 })
+		// Confirm br is present after apply
+		expect(el.querySelector('br[data-om]')).not.toBeNull()
+		const cleaned = getCleanHTML(el)
+		expect(cleaned).not.toContain('data-om')
+	})
+
+	// ── Test 24: SSR guard — applyOpticalMargin is a no-op when window is undefined ─
+	it('applyOpticalMargin is a no-op when window is undefined', () => {
+		const el = makeElement('Hello world.')
+		const original = getCleanHTML(el)
+		const originalHTML = el.innerHTML
+		// Temporarily hide window
+		const win = globalThis.window
+		// @ts-expect-error intentional undefined override for SSR simulation
+		globalThis.window = undefined
+		try {
+			applyOpticalMargin(el, original, {})
+			// innerHTML should be unchanged since the function returned early
+			expect(el.innerHTML).toBe(originalHTML)
+		} finally {
+			globalThis.window = win
+		}
+	})
+
+	// ── Test 25: Canvas-unavailable fallback — no hang applied ────────────────
+	it('no hang is applied when canvas context is unavailable', () => {
+		vi.restoreAllMocks()
+		document.body.innerHTML = ''
+
+		// Reset the module-level canvas singleton so the new null-context mock is used
+		_resetCanvasForTesting()
+
+		// Install a canvas mock that returns null context
+		vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
+			if (tag === 'canvas') return mockCanvasNoCtx
+			return HTMLDocument.prototype.createElement.call(document, tag)
+		})
+		vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+			const el = this as HTMLElement
+			const isWord = el.classList?.contains(OPTICAL_MARGIN_CLASSES.word)
+			const w = isWord ? 40 : CONTAINER_WIDTH
+			return {
+				width: w, height: 20, top: 0, left: 0, right: w, bottom: 20, x: 0, y: 0,
+				toJSON: () => ({}),
+			} as DOMRect
+		})
+
+		const el = makeElement('“Hello world.')
+		const original = getCleanHTML(el)
+		applyOpticalMargin(el, original, { hangStart: true, hangEnd: true, threshold: 0 })
+		const lines = Array.from(el.querySelectorAll<HTMLElement>(`.${OPTICAL_MARGIN_CLASSES.line}`))
+		expect(lines.length).toBeGreaterThan(0)
+		for (const line of lines) {
+			expect(line.style.marginInlineStart).toBe('')
+			expect(line.style.marginInlineEnd).toBe('')
+		}
+	})
+
+	// ── Test 26: custom hangFractions override ────────────────────────────────
+	it('custom hangFractions override reduces hang amount', () => {
+		const el1 = makeElement('“Hello world.')
+		const orig1 = getCleanHTML(el1)
+		applyOpticalMargin(el1, orig1, { hangStart: true, hangEnd: false, threshold: 0 })
+		const fullHang = parseFloat(
+			el1.querySelector<HTMLElement>(`.${OPTICAL_MARGIN_CLASSES.line}`)?.style.marginInlineStart ?? '0',
+		)
+
+		const el2 = makeElement('“Hello world.')
+		const orig2 = getCleanHTML(el2)
+		applyOpticalMargin(el2, orig2, { hangStart: true, hangEnd: false, threshold: 0, hangFractions: { '“': 0.4 } })
+		const reducedHang = parseFloat(
+			el2.querySelector<HTMLElement>(`.${OPTICAL_MARGIN_CLASSES.line}`)?.style.marginInlineStart ?? '0',
+		)
+
+		// Both should be negative; reduced fraction yields a smaller absolute value
+		expect(fullHang).toBeLessThan(0)
+		expect(reducedHang).toBeLessThan(0)
+		expect(Math.abs(reducedHang)).toBeLessThan(Math.abs(fullHang))
+	})
+
+	// ── Test 27: maxHangRatio=0 suppresses all hang ───────────────────────────
+	it('maxHangRatio=0 suppresses all hanging', () => {
+		const el = makeElement('“Hello world.')
+		const original = getCleanHTML(el)
+		applyOpticalMargin(el, original, { hangStart: true, hangEnd: true, maxHangRatio: 0, threshold: 0 })
+		const lines = Array.from(el.querySelectorAll<HTMLElement>(`.${OPTICAL_MARGIN_CLASSES.line}`))
+		for (const line of lines) {
+			expect(line.style.marginInlineStart).toBe('')
+			expect(line.style.marginInlineEnd).toBe('')
+		}
+	})
+
+	// ── Test 28: whitespace-only input does not throw ────────────────────────
+	it('whitespace-only input does not throw and produces no line spans', () => {
+		const el = makeElement('   ')
+		const original = getCleanHTML(el)
+		expect(() => applyOpticalMargin(el, original, {})).not.toThrow()
+		expect(el.querySelectorAll(`.${OPTICAL_MARGIN_CLASSES.line}`).length).toBe(0)
+	})
+
+	// ── Test 29: closing chars hang at end ────────────────────────────────────
+	it.each([
+		[')', 'closing parenthesis'],
+		[']', 'closing bracket'],
+		['!', 'exclamation mark'],
+		['?', 'question mark'],
+		['–', 'en dash'],
+		['—', 'em dash'],
+		['…', 'ellipsis'],
+		['”', 'closing curly double-quote'],
+		['’', 'closing curly single-quote'],
+	])('closing char %s hangs at end', (char) => {
+		const el = makeElement(`Hello world${char}`)
+		const original = getCleanHTML(el)
+		applyOpticalMargin(el, original, { hangStart: false, hangEnd: true, threshold: 0 })
+		const lines = Array.from(el.querySelectorAll<HTMLElement>(`.${OPTICAL_MARGIN_CLASSES.line}`))
+		const last = lines[lines.length - 1]
+		expect(last?.style.marginInlineEnd).toMatch(/^-[\d.]+px$/)
 	})
 })

@@ -39,8 +39,8 @@ Both `hangStart` and `hangEnd` default to `true`, so no props are required for s
 ```tsx
 import { useOpticalMargin } from '@liiift-studio/opticalmargin'
 
-// Inside a React component:
-const ref = useOpticalMargin()
+// Inside a React component (options object is required; pass {} for defaults):
+const ref = useOpticalMargin({})
 return <blockquote ref={ref}>{children}</blockquote>
 ```
 
@@ -86,10 +86,17 @@ const opts: OpticalMarginOptions = { threshold: 1, maxHangRatio: 0.8 }
 |--------|---------|-------------|
 | `hangStart` | `true` | Hang opening punctuation at line starts |
 | `hangEnd` | `true` | Hang closing punctuation and sentence-end marks at line ends |
-| `threshold` | `0.5` | Minimum hang amount in px before applying. Prevents near-zero corrections on characters that barely protrude |
-| `maxHangRatio` | `0.9` | Max proportion of the character's advance width to hang (0–1). Caps extreme hangs on very wide punctuation |
-| `hangFractions` | see below | Per-character hang fraction overrides. Keys are single characters; values are fractions of the measured hang to apply (0 = no hang, 1 = full hang). Default fractions: hyphens/dashes `1.0`, quotes/brackets `0.8`, periods/exclamations `0.8`, commas/colons `0.6` |
-| `as` | `'p'` | HTML element to render, e.g. `'blockquote'`, `'h1'`. *(React component only)* |
+| `threshold` | `0.5` | Minimum effective hang amount in px before applying (compared after `hangFractions` multiplication). Prevents near-zero corrections on characters that barely protrude |
+| `maxHangRatio` | `0.9` | Max proportion of the character's advance width to hang (0–1). Clamped to [0,1]. Caps extreme hangs on very wide punctuation |
+| `hangFractions` | see below | Per-character hang fraction overrides. Keys are single characters; values are fractions (0–1) of the measured hang to apply (0 = no hang, 1 = full hang). You can pass a sparse object — unspecified characters fall back to built-in defaults. Default fractions: hyphens/dashes `1.0`, quotes/parens/brackets `0.8`, periods/exclamations `0.8`, commas/semicolons/colons `0.6` |
+
+**`OpticalMarginText` component only:**
+
+| Prop | Default | Description |
+|------|---------|-------------|
+| `as` | `'p'` | HTML element to render, e.g. `'blockquote'`, `'h1'` |
+
+`OpticalMarginText` also forwards all standard HTML attributes (`aria-label`, `id`, `role`, `className`, `style`, etc.) to the root element.
 
 ---
 
@@ -104,6 +111,29 @@ Canvas `measureText` returns both `width` (advance width) and `actualBoundingBox
 Falls back to zero hang (no margin applied) in environments without Canvas support (e.g. SSR).
 
 **Line break safety:** Line breaks are locked to the browser's natural layout. Word breaks never change — the negative margins only affect the optical edge position, not line content or width.
+
+---
+
+## API reference
+
+### `getCleanHTML(el: HTMLElement): string`
+
+Returns the element's innerHTML with all optical-margin injected markup (`om-word` spans, `om-line` spans, `<br data-om>` separators) stripped. Safe to call multiple times — idempotent.
+
+Use this to capture the **original HTML snapshot** before the first `applyOpticalMargin` call. The snapshot must be passed as the second argument to both `applyOpticalMargin` and `removeOpticalMargin` every time they are called.
+
+```ts
+const original = getCleanHTML(el)  // capture once, before any apply
+
+function run() {
+  applyOpticalMargin(el, original, opts)
+}
+
+// Later:
+removeOpticalMargin(el, original)  // same snapshot
+```
+
+**Important:** Always capture the snapshot from the element's initial state (or via `getCleanHTML` on an already-applied element). Never pass `el.innerHTML` directly after `applyOpticalMargin` has run — the snapshot will include injected markup and the algorithm will double-wrap on the next call.
 
 ---
 
@@ -127,4 +157,4 @@ The package itself has zero runtime dependencies. Do not remove this entry.
 
 ---
 
-Current version: 1.0.13
+See [CHANGELOG](https://github.com/Liiift-Studio/OpticalMargin/releases) for version history.

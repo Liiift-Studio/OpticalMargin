@@ -3,3 +3,4 @@ export { applyOpticalMargin, removeOpticalMargin, getCleanHTML } from './core/ad
 export { useOpticalMargin } from './react/useOpticalMargin'
 export { OpticalMarginText } from './react/OpticalMarginText'
 export type { OpticalMarginOptions } from './core/types'
+export { OPTICAL_MARGIN_CLASSES } from './core/types'
