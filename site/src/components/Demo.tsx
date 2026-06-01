@@ -1,17 +1,27 @@
 "use client"
 
 // Interactive demo for optical-margin — toggles hang at start/end, threshold, maxHangRatio, cursor/gyro, and compare
-import { useState, useEffect, useDeferredValue } from "react"
+import { useState, useEffect, useDeferredValue, useCallback } from "react"
 import { OpticalMarginText } from "@liiift-studio/opticalmargin"
 
-const SAMPLE = `“The best typography,” wrote Jan Tschichold, “is invisible — it disappears into the reading.” That is the paradox of the craft: the more perfectly it is executed, the less it is noticed. Every margin matters. Every spacing decision carries weight. “A quotation mark at the start of a line should hang,” Bringhurst insists, “so that the letter, not the punctuation, holds the optical edge.” The same applies to commas, dashes, periods — any mark smaller than a full letter. Hung correctly, the margin reads as a clean vertical. Left flush, it creates a slight indent that the eye registers as misalignment, even when the reader cannot name what bothers them. “It is a small thing,” one might say — but in typography, every small thing is the thing.`
+const SAMPLE = `"The best typography," wrote Jan Tschichold, "is invisible — it disappears into the reading." That is the paradox of the craft: the more perfectly it is executed, the less it is noticed. Every margin matters. Every spacing decision carries weight. "A quotation mark at the start of a line should hang," Bringhurst insists, "so that the letter, not the punctuation, holds the optical edge." The same applies to commas, dashes, periods — any mark smaller than a full letter. Hung correctly, the margin reads as a clean vertical. Left flush, it creates a slight indent that the eye registers as misalignment, even when the reader cannot name what bothers them. "It is a small thing," one might say — but in typography, every small thing is the thing.`
+
+// Hoisted to module scope — stable reference, no per-render allocation
+const SAMPLE_STYLE: React.CSSProperties = {
+	fontFamily: "var(--font-merriweather), serif",
+	fontSize: "1.125rem",
+	lineHeight: "1.8",
+	fontVariationSettings: '"wght" 300, "opsz" 18, "wdth" 100',
+}
 
 /** Before/after toggle — small icon anchored to bottom-right of the text area */
-function BeforeAfterToggle({ active, onClick }: { active: boolean; onClick: () => void }) {
+function BeforeAfterToggle({ active, onClick, overlayId }: { active: boolean; onClick: () => void; overlayId: string }) {
 	return (
 		<button
 			onClick={onClick}
-			aria-label="Toggle before/after comparison"
+			aria-label={active ? 'Hide before/after comparison' : 'Show before/after comparison'}
+			aria-pressed={active}
+			aria-controls={overlayId}
 			title={active ? 'Hide comparison' : 'Compare without effect'}
 			style={{
 				position: 'absolute', bottom: 0, right: 0,
@@ -23,7 +33,7 @@ function BeforeAfterToggle({ active, onClick }: { active: boolean; onClick: () =
 				cursor: 'pointer', transition: 'opacity 0.15s ease',
 			}}
 		>
-			<svg width="14" height="10" viewBox="0 0 14 10" fill="none">
+			<svg width="14" height="10" viewBox="0 0 14 10" fill="none" aria-hidden="true">
 				<rect x="0.5" y="0.5" width="13" height="9" rx="1" stroke="currentColor" strokeWidth="1"/>
 				<line x1="7" y1="0.5" x2="7" y2="9.5" stroke="currentColor" strokeWidth="1"/>
 				<rect x="8" y="1.5" width="5" height="7" fill="currentColor"/>
@@ -35,7 +45,7 @@ function BeforeAfterToggle({ active, onClick }: { active: boolean; onClick: () =
 /** Cursor arrow icon */
 function CursorIcon() {
 	return (
-		<svg width="11" height="14" viewBox="0 0 11 14" fill="currentColor" aria-hidden>
+		<svg width="11" height="14" viewBox="0 0 11 14" fill="currentColor" aria-hidden="true">
 			<path d="M0 0L0 11L3 8L5 13L6.8 12.3L4.8 7.3L8.5 7.3Z" />
 		</svg>
 	)
@@ -44,7 +54,7 @@ function CursorIcon() {
 /** Gyroscope icon — circle with rotation arrow */
 function GyroIcon() {
 	return (
-		<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" aria-hidden>
+		<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" aria-hidden="true">
 			<circle cx="7" cy="7" r="5.5" />
 			<circle cx="7" cy="7" r="1.5" fill="currentColor" stroke="none" />
 			<path d="M7 1.5 A5.5 5.5 0 0 1 12.5 7" strokeWidth="1.4" />
@@ -66,6 +76,7 @@ export default function Demo() {
 	const [maxHangRatio, setMaxHangRatio] = useState(0.9)
 	const [beforeAfter, setComparing] = useState(false)
 	const [fontsReady, setFontsReady] = useState(false)
+	const [gyroPermissionDenied, setGyroPermissionDenied] = useState(false)
 
 	// Interaction modes — mutually exclusive
 	const [cursorMode, setCursorMode] = useState(false)
@@ -130,28 +141,37 @@ export default function Demo() {
 	}, [gyroMode])
 
 	// Toggle cursor mode — turns off gyro if active
-	const toggleCursor = () => {
+	const toggleCursor = useCallback(() => {
 		setGyroMode(false)
 		setCursorMode(v => !v)
-	}
+	}, [])
 
 	// Toggle gyro mode — requests iOS permission if needed, turns off cursor if active
-	const toggleGyro = async () => {
+	const toggleGyro = useCallback(async () => {
 		if (gyroMode) {
 			setGyroMode(false)
 			return
 		}
 		setCursorMode(false)
+		setGyroPermissionDenied(false)
 		const DOE = DeviceOrientationEvent as typeof DeviceOrientationEvent & {
 			requestPermission?: () => Promise<PermissionState>
 		}
 		if (typeof DOE.requestPermission === 'function') {
-			const permission = await DOE.requestPermission()
-			if (permission === 'granted') setGyroMode(true)
+			try {
+				const permission = await DOE.requestPermission()
+				if (permission === 'granted') {
+					setGyroMode(true)
+				} else {
+					setGyroPermissionDenied(true)
+				}
+			} catch {
+				setGyroPermissionDenied(true)
+			}
 		} else {
 			setGyroMode(true)
 		}
-	}
+	}, [gyroMode])
 
 	// Effective threshold: gyro-driven when gyroMode is active, slider-driven otherwise
 	const effectiveThreshold = gyroMode ? gyroThreshold : threshold
@@ -161,14 +181,12 @@ export default function Demo() {
 	const dThreshold = useDeferredValue(effectiveThreshold)
 	const dMaxHangRatio = useDeferredValue(maxHangRatio)
 
-	const sampleStyle: React.CSSProperties = {
-		fontFamily: "var(--font-merriweather), serif",
-		fontSize: "1.125rem",
-		lineHeight: "1.8",
-		fontVariationSettings: '"wght" 300, "opsz" 18, "wdth" 100',
-	}
-
 	const activeMode = cursorMode || gyroMode
+
+	// Stable IDs for aria-controls associations
+	const overlayId = "om-before-after-overlay"
+	const thresholdReadbackId = "om-threshold-value"
+	const maxHangReadbackId = "om-maxhang-value"
 
 	return (
 		<div className="w-full">
@@ -176,6 +194,7 @@ export default function Demo() {
 				<span className="text-xs uppercase tracking-widest opacity-50">Hang</span>
 				<button
 					onClick={() => setHangStart(v => !v)}
+					aria-pressed={hangStart}
 					title={hangStart ? 'Disable hanging at the start margin — opening quotes will align flush with the text edge' : 'Enable hanging at the start margin — opening quotes protrude left so letters hold the optical edge'}
 					className="text-xs px-3 py-1 rounded-full border transition-opacity"
 					style={{ borderColor: 'currentColor', opacity: hangStart ? 1 : 0.5, background: hangStart ? 'var(--btn-bg)' : 'transparent' }}
@@ -184,6 +203,7 @@ export default function Demo() {
 				</button>
 				<button
 					onClick={() => setHangEnd(v => !v)}
+					aria-pressed={hangEnd}
 					title={hangEnd ? 'Disable hanging at the end margin — closing quotes and commas will align flush with the text edge' : 'Enable hanging at the end margin — closing quotes, commas, and periods protrude right so letters hold the optical edge'}
 					className="text-xs px-3 py-1 rounded-full border transition-opacity"
 					style={{ borderColor: 'currentColor', opacity: hangEnd ? 1 : 0.5, background: hangEnd ? 'var(--btn-bg)' : 'transparent' }}
@@ -194,6 +214,8 @@ export default function Demo() {
 				{/* Prominent compare button — labeled, same style as hang toggles */}
 				<button
 					onClick={() => setComparing(v => !v)}
+					aria-pressed={beforeAfter}
+					aria-controls={overlayId}
 					title={beforeAfter ? 'Hide the unprocessed text overlay' : 'Overlay the original flush text to compare it against the optically-aligned version'}
 					className="text-xs px-3 py-1 rounded-full border transition-opacity"
 					style={{ borderColor: 'currentColor', opacity: beforeAfter ? 1 : 0.5, background: beforeAfter ? 'var(--btn-bg)' : 'transparent' }}
@@ -202,23 +224,27 @@ export default function Demo() {
 				</button>
 
 				<div className="flex flex-col gap-1 ml-4 min-w-32">
-					<span className="text-xs uppercase tracking-widest opacity-50">Threshold (px)</span>
+					<span className="text-xs uppercase tracking-widest opacity-50" id="om-threshold-label">Threshold (px)</span>
 					<input
 						type="range"
 						min={0}
 						max={3}
 						step={0.25}
 						value={threshold}
-						aria-label="Threshold"
-						title="Minimum glyph width (in px) below which a punctuation mark is considered small enough to hang. Lower values hang more characters; higher values hang fewer."
+						disabled={cursorMode}
+						aria-label="Threshold (px)"
+						aria-labelledby="om-threshold-label"
+						aria-valuetext={`${effectiveThreshold} px`}
+						aria-describedby={thresholdReadbackId}
+						title="Minimum computed hang value in px. Characters whose hang falls below this are left flush. Lower values hang more characters; higher values hang fewer."
 						onChange={e => setThreshold(Number(e.target.value))}
 						onTouchStart={e => e.stopPropagation()}
-						style={{ touchAction: 'none' }}
+						style={{ touchAction: 'pan-y', opacity: cursorMode ? 0.35 : 1 }}
 					/>
-					<span className="tabular-nums text-xs opacity-50 text-right">{effectiveThreshold}</span>
+					<span id={thresholdReadbackId} className="tabular-nums text-xs opacity-50 text-right" aria-live="polite">{effectiveThreshold}</span>
 				</div>
 				<div className="flex flex-col gap-1 ml-4 min-w-32">
-					<span className="text-xs uppercase tracking-widest opacity-50">Max Hang Ratio</span>
+					<span className="text-xs uppercase tracking-widest opacity-50" id="om-maxhang-label">Max Hang Ratio</span>
 					<input
 						type="range"
 						min={0}
@@ -226,18 +252,22 @@ export default function Demo() {
 						step={0.05}
 						value={maxHangRatio}
 						aria-label="Max Hang Ratio"
+						aria-labelledby="om-maxhang-label"
+						aria-valuetext={maxHangRatio.toFixed(2)}
+						aria-describedby={maxHangReadbackId}
 						title="Maximum fraction of a glyph's width that may protrude beyond the margin. 1.0 allows a full hang; 0.5 caps the overhang at half the glyph width, keeping very wide marks partially in-column."
 						onChange={e => setMaxHangRatio(Number(e.target.value))}
 						onTouchStart={e => e.stopPropagation()}
-						style={{ touchAction: 'none' }}
+						style={{ touchAction: 'pan-y' }}
 					/>
-					<span className="tabular-nums text-xs opacity-50 text-right">{maxHangRatio.toFixed(2)}</span>
+					<span id={maxHangReadbackId} className="tabular-nums text-xs opacity-50 text-right" aria-live="polite">{maxHangRatio.toFixed(2)}</span>
 				</div>
 
 				{/* Cursor mode — desktop/hover-capable devices only */}
 				{showCursor && (
 					<button
 						onClick={toggleCursor}
+						aria-pressed={cursorMode}
 						title="Move your cursor left/right to adjust threshold"
 						className="flex items-center gap-1.5 text-xs px-3 py-1 rounded-full border transition-all"
 						style={{
@@ -255,7 +285,8 @@ export default function Demo() {
 				{showGyro && (
 					<button
 						onClick={toggleGyro}
-						title="Tilt your device left/right to adjust threshold"
+						aria-pressed={gyroMode}
+						title={gyroPermissionDenied ? 'Motion permission denied — reload the page to try again' : 'Tilt your device left/right to adjust threshold'}
 						className="flex items-center gap-1.5 text-xs px-3 py-1 rounded-full border transition-all"
 						style={{
 							borderColor: 'currentColor',
@@ -264,7 +295,7 @@ export default function Demo() {
 						}}
 					>
 						<GyroIcon />
-						<span>{gyroMode ? 'Tilt active' : 'Tilt'}</span>
+						<span>{gyroMode ? 'Tilt active' : gyroPermissionDenied ? 'Permission denied' : 'Tilt'}</span>
 					</button>
 				)}
 			</div>
@@ -276,22 +307,23 @@ export default function Demo() {
 					hangEnd={dEnd}
 					threshold={dThreshold}
 					maxHangRatio={dMaxHangRatio}
-					style={sampleStyle}
+					style={{ ...SAMPLE_STYLE, opacity: fontsReady ? 1 : 0, transition: 'opacity 0.2s ease' }}
 				>
 					{SAMPLE}
 				</OpticalMarginText>
 				{beforeAfter && (
 					<p
-						aria-hidden
-						style={{ ...sampleStyle, position: 'absolute', top: 0, left: 0, width: '100%', margin: 0, opacity: 0.45, pointerEvents: 'none' }}
+						id={overlayId}
+						aria-hidden="true"
+						style={{ ...SAMPLE_STYLE, position: 'absolute', top: 0, left: 0, width: '100%', margin: 0, opacity: 0.45, pointerEvents: 'none', transition: 'opacity 0.15s ease' }}
 					>
 						{SAMPLE}
 					</p>
 				)}
-				<BeforeAfterToggle active={beforeAfter} onClick={() => setComparing(v => !v)} />
+				<BeforeAfterToggle active={beforeAfter} onClick={() => setComparing(v => !v)} overlayId={overlayId} />
 			</div>
 
-			<p className="text-xs opacity-50 italic mt-8" style={{ lineHeight: "1.8" }}>
+			<p className="text-xs opacity-50 italic mt-8" style={{ lineHeight: "1.8" }} aria-live="polite">
 				{activeMode
 					? cursorMode
 						? 'Move cursor left/right to adjust threshold. Press Esc to exit.'

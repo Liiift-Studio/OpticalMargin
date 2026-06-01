@@ -5,7 +5,6 @@ import ToolDirectory from "@/components/ToolDirectory"
 import { version } from "../../../package.json"
 import { version as siteVersion } from "../../package.json"
 import SiteFooter from "../components/SiteFooter"
-import { MagnetChar } from "@liiift-studio/magnettype"
 
 export default function Home() {
 	return (
@@ -16,8 +15,8 @@ export default function Home() {
 				<div className="flex flex-col gap-2">
 					<p className="text-xs uppercase tracking-widest opacity-50">opticalmargin</p>
 					<h1 className="text-4xl lg:text-8xl xl:text-9xl" style={{ fontFamily: "var(--font-merriweather), serif", fontVariationSettings: '"wght" 300, "opsz" 144', lineHeight: "1.05em" }}>
-						<MagnetChar as="span" minWeight={300} maxWeight={800} spreadRadius={220} fixedAxes={{ opsz: 144 }}>Hang it right.</MagnetChar><br />
-						<MagnetChar as="span" minWeight={300} maxWeight={800} spreadRadius={220} fixedAxes={{ opsz: 144 }} style={{ opacity: 0.5, fontStyle: "italic" }}>Every font.</MagnetChar>
+						<span>Hang it right.</span><br />
+						<span style={{ opacity: 0.5, fontStyle: "italic" }}>Every font.</span>
 					</h1>
 				</div>
 				<div className="flex items-center gap-4">
@@ -34,7 +33,7 @@ export default function Home() {
 
 			{/* Demo */}
 			<section className="w-full max-w-2xl lg:max-w-5xl flex flex-col gap-4">
-				<p className="text-xs uppercase tracking-widest opacity-50">Live demo — toggle the hangs</p>
+				<h2 className="text-xs uppercase tracking-widest opacity-50">Live demo — toggle the hangs</h2>
 				<div className="rounded-xl -mx-8 px-8 py-8" style={{ background: "rgba(0,0,0,0.25)", overflow: 'hidden' }}>
 					<Demo />
 				</div>
@@ -42,7 +41,7 @@ export default function Home() {
 
 			{/* Explanation */}
 			<section className="w-full max-w-2xl lg:max-w-5xl flex flex-col gap-6">
-				<p className="text-xs uppercase tracking-widest opacity-50">Why not CSS?</p>
+				<h2 className="text-xs uppercase tracking-widest opacity-50">Why not CSS?</h2>
 				<div className="prose-grid grid grid-cols-1 sm:grid-cols-2 gap-12 text-sm leading-relaxed opacity-70">
 					<div className="flex flex-col gap-3">
 						<p className="font-semibold opacity-100 text-base">hanging-punctuation is incomplete</p>
@@ -58,7 +57,7 @@ export default function Home() {
 			{/* Usage */}
 			<section className="w-full max-w-2xl lg:max-w-5xl flex flex-col gap-6">
 				<div className="flex items-baseline gap-4">
-					<p className="text-xs uppercase tracking-widest opacity-50">Usage</p>
+					<h2 className="text-xs uppercase tracking-widest opacity-50">Usage</h2>
 				</div>
 				<div className="flex flex-col gap-8 text-sm">
 					<div className="flex flex-col gap-3">
@@ -90,13 +89,14 @@ removeOpticalMargin(el, original)`} />
 					<div className="flex flex-col gap-3">
 						<p className="opacity-50">Options</p>
 						<table className="w-full text-xs">
+								<caption className="sr-only">applyOpticalMargin API options</caption>
 							<thead><tr className="opacity-50 text-left"><th className="pb-2 pr-6 font-normal">Option</th><th className="pb-2 pr-6 font-normal">Default</th><th className="pb-2 font-normal">Description</th></tr></thead>
 							<tbody className="opacity-70">
 								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors"><td className="py-2 pr-6 font-mono">hangStart</td><td className="py-2 pr-6">true</td><td className="py-2">Hang opening punctuation at line starts.</td></tr>
 								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors"><td className="py-2 pr-6 font-mono">hangEnd</td><td className="py-2 pr-6">true</td><td className="py-2">Hang closing punctuation and sentence-end marks at line ends.</td></tr>
-								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors"><td className="py-2 pr-6 font-mono">threshold</td><td className="py-2 pr-6">0.5</td><td className="py-2">Minimum hang amount in px before applying.</td></tr>
+								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors"><td className="py-2 pr-6 font-mono">threshold</td><td className="py-2 pr-6">0.5</td><td className="py-2">Minimum computed hang value in px. Characters whose hang falls below this are left flush.</td></tr>
 								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors"><td className="py-2 pr-6 font-mono">maxHangRatio</td><td className="py-2 pr-6">0.9</td><td className="py-2">Max proportion of advance width to hang (0–1).</td></tr>
-								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors"><td className="py-2 pr-6 font-mono">hangFractions</td><td className="py-2 pr-6">—</td><td className="py-2">Per-character hang fraction overrides. Keys are single characters; values are 0–1. Defaults: hyphens/dashes 1.0, quotes/brackets 0.8, commas/colons 0.6.</td></tr>
+								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors"><td className="py-2 pr-6 font-mono">hangFractions</td><td className="py-2 pr-6">see desc.</td><td className="py-2">Per-character hang fraction overrides (0–1). Built-in defaults: hyphens &amp; dashes 1.0; quotes, periods, !, ?, &hellip;, ), ] 0.8; (, [, commas, semicolons, colons 0.6. Pass your own map to override any character.</td></tr>
 							</tbody>
 						</table>
 					</div>
