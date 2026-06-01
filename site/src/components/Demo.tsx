@@ -189,8 +189,8 @@ export default function Demo() {
 	const maxHangReadbackId = "om-maxhang-value"
 
 	return (
-		<div className="w-full">
-			<div className="flex flex-wrap items-center gap-3 mb-8">
+		<div className="w-full min-w-0">
+			<div className="flex flex-wrap items-center gap-3 mb-8 min-w-0">
 				<span className="text-xs uppercase tracking-widest opacity-50">Hang</span>
 				<button
 					onClick={() => setHangStart(v => !v)}
@@ -311,15 +311,13 @@ export default function Demo() {
 				>
 					{SAMPLE}
 				</OpticalMarginText>
-				{beforeAfter && (
-					<p
-						id={overlayId}
-						aria-hidden="true"
-						style={{ ...SAMPLE_STYLE, position: 'absolute', top: 0, left: 0, width: '100%', margin: 0, opacity: 0.45, pointerEvents: 'none', transition: 'opacity 0.15s ease' }}
-					>
-						{SAMPLE}
-					</p>
-				)}
+				<p
+					id={overlayId}
+					aria-hidden="true"
+					style={{ ...SAMPLE_STYLE, position: 'absolute', top: 0, left: 0, width: '100%', margin: 0, opacity: beforeAfter ? 0.45 : 0, pointerEvents: 'none', transition: 'opacity 0.3s ease' }}
+				>
+					{SAMPLE}
+				</p>
 				<BeforeAfterToggle active={beforeAfter} onClick={() => setComparing(v => !v)} overlayId={overlayId} />
 			</div>
 

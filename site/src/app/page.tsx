@@ -3,7 +3,6 @@ import CopyInstall from "@/components/CopyInstall"
 import CodeBlock from "@/components/CodeBlock"
 import ToolDirectory from "@/components/ToolDirectory"
 import { version } from "../../../package.json"
-import { version as siteVersion } from "../../package.json"
 import SiteFooter from "../components/SiteFooter"
 
 export default function Home() {
@@ -103,7 +102,7 @@ removeOpticalMargin(el, original)`} />
 				</div>
 			</section>
 
-			<SiteFooter current="opticalMargin" npmVersion={version} siteVersion={siteVersion} />
+			<SiteFooter current="opticalMargin" npmVersion={version} siteVersion={version} />
 
 		</main>
 	)
