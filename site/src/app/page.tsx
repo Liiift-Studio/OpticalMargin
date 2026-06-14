@@ -3,7 +3,9 @@ import CopyInstall from "@/components/CopyInstall"
 import CodeBlock from "@/components/CodeBlock"
 import ToolDirectory from "@/components/ToolDirectory"
 import { version } from "../../../package.json"
+import { version as siteVersion } from "../../package.json"
 import SiteFooter from "../components/SiteFooter"
+import { MagnetChar } from "@liiift-studio/magnettype"
 
 export default function Home() {
 	return (
@@ -12,27 +14,39 @@ export default function Home() {
 			{/* Hero */}
 			<section className="w-full max-w-2xl lg:max-w-5xl flex flex-col gap-6">
 				<div className="flex flex-col gap-2">
-					<p className="text-xs uppercase tracking-widest opacity-50">opticalmargin</p>
+					<p className="text-xs uppercase tracking-[0.18em] font-medium text-muted">opticalmargin</p>
 					<h1 className="text-4xl lg:text-8xl xl:text-9xl" style={{ fontFamily: "var(--font-merriweather), serif", fontVariationSettings: '"wght" 300, "opsz" 144', lineHeight: "1.05em" }}>
-						<span>Hang it right.</span><br />
-						<span style={{ opacity: 0.5, fontStyle: "italic" }}>Every font.</span>
+						<MagnetChar as="span" minWeight={300} maxWeight={800} spreadRadius={220} fixedAxes={{ opsz: 144 }}>Hang it right.</MagnetChar><br />
+						<MagnetChar as="span" minWeight={300} maxWeight={800} spreadRadius={220} fixedAxes={{ opsz: 144 }} style={{ color: "var(--foreground-subtle)", fontStyle: "italic" }}>Every font.</MagnetChar>
 					</h1>
 				</div>
 				<div className="flex items-center gap-4">
 					<CopyInstall />
-					<a href="https://github.com/Liiift-Studio/OpticalMargin" className="text-sm opacity-50 hover:opacity-100 transition-opacity">GitHub</a>
+					<a
+						href="https://github.com/Liiift-Studio/OpticalMargin"
+						target="_blank"
+						rel="noopener noreferrer"
+						aria-label="OpticalMargin on GitHub (opens in new tab)"
+						className="text-sm text-muted hover:text-foreground transition-colors"
+					>
+						GitHub ↗
+					</a>
 				</div>
-				<div className="flex flex-wrap gap-x-4 gap-y-1 text-xs opacity-50 tracking-wide">
-					<span>TypeScript</span><span>·</span><span>Canvas measurement</span><span>·</span><span>Cross-browser</span>
+				<div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted tracking-wide">
+					<span>TypeScript</span>
+					<span aria-hidden="true">·</span>
+					<span>Canvas measurement</span>
+					<span aria-hidden="true">·</span>
+					<span>Cross-browser</span>
 				</div>
-				<p className="text-base opacity-60 leading-relaxed max-w-lg">
+				<p className="text-base leading-relaxed max-w-lg">
 					CSS <code className="text-xs font-mono">hanging-punctuation</code> is Safari-only and has no weight control. Optical Margin measures each punctuation character&rsquo;s actual hang amount from Canvas font metrics and applies it as a margin. Works in every browser, with every font.
 				</p>
 			</section>
 
 			{/* Demo */}
 			<section className="w-full max-w-2xl lg:max-w-5xl flex flex-col gap-4">
-				<h2 className="text-xs uppercase tracking-widest opacity-50">Live demo — toggle the hangs</h2>
+				<h2 className="text-xs uppercase tracking-[0.18em] font-medium text-muted">Live demo — toggle the hangs</h2>
 				<div className="rounded-xl -mx-8 px-8 py-8" style={{ background: "rgba(0,0,0,0.25)", overflow: 'hidden' }}>
 					<Demo />
 				</div>
@@ -40,14 +54,14 @@ export default function Home() {
 
 			{/* Explanation */}
 			<section className="w-full max-w-2xl lg:max-w-5xl flex flex-col gap-6">
-				<h2 className="text-xs uppercase tracking-widest opacity-50">Why not CSS?</h2>
-				<div className="prose-grid grid grid-cols-1 sm:grid-cols-2 gap-12 text-sm leading-relaxed opacity-70">
+				<h2 className="text-xs uppercase tracking-[0.18em] font-medium text-muted">Why not CSS?</h2>
+				<div className="prose-grid grid grid-cols-1 sm:grid-cols-2 gap-12 text-sm leading-relaxed">
 					<div className="flex flex-col gap-3">
-						<p className="font-semibold opacity-100 text-base">hanging-punctuation is incomplete</p>
+						<p className="font-semibold text-base">hanging-punctuation is incomplete</p>
 						<p>The CSS property is Safari-only. It doesn&rsquo;t let you control hang amount, threshold, or which characters hang. And it uses hard-coded character tables, not the actual font metrics — so a T in one font hangs the same amount as a T in another.</p>
 					</div>
 					<div className="flex flex-col gap-3">
-						<p className="font-semibold opacity-100 text-base">Font-metric measurement</p>
+						<p className="font-semibold text-base">Font-metric measurement</p>
 						<p>Canvas measureText returns both advance width and visual bounds. The difference is the optical hang amount — how far the character could move into the margin before it would look misaligned. This gives accurate results for every font without a lookup table.</p>
 					</div>
 				</div>
@@ -56,11 +70,12 @@ export default function Home() {
 			{/* Usage */}
 			<section className="w-full max-w-2xl lg:max-w-5xl flex flex-col gap-6">
 				<div className="flex items-baseline gap-4">
-					<h2 className="text-xs uppercase tracking-widest opacity-50">Usage</h2>
+					<h2 className="text-xs uppercase tracking-[0.18em] font-medium text-muted">Usage</h2>
+					<p className="text-xs text-muted tracking-wide">TypeScript + React · Vanilla JS</p>
 				</div>
 				<div className="flex flex-col gap-8 text-sm">
 					<div className="flex flex-col gap-3">
-						<p className="opacity-50">Drop-in component</p>
+						<p className="text-muted">Drop-in component</p>
 						<CodeBlock code={`import { OpticalMarginText } from '@liiift-studio/opticalmargin'
 
 <OpticalMarginText hangStart={true} hangEnd={true}>
@@ -68,14 +83,14 @@ export default function Home() {
 </OpticalMarginText>`} />
 					</div>
 					<div className="flex flex-col gap-3">
-						<p className="opacity-50">Hook</p>
+						<p className="text-muted">Hook</p>
 						<CodeBlock code={`import { useOpticalMargin } from '@liiift-studio/opticalmargin'
 
 const ref = useOpticalMargin({ hangStart: true, hangEnd: true })
 <p ref={ref}>{children}</p>`} />
 					</div>
 					<div className="flex flex-col gap-3">
-						<p className="opacity-50">Vanilla JS</p>
+						<p className="text-muted">Vanilla JS</p>
 						<CodeBlock code={`import { applyOpticalMargin, removeOpticalMargin, getCleanHTML } from '@liiift-studio/opticalmargin'
 
 const el = document.querySelector('p')
@@ -86,23 +101,49 @@ applyOpticalMargin(el, original, { hangStart: true, hangEnd: true })
 removeOpticalMargin(el, original)`} />
 					</div>
 					<div className="flex flex-col gap-3">
-						<p className="opacity-50">Options</p>
+						<p className="text-muted">Options</p>
 						<table className="w-full text-xs">
-								<caption className="sr-only">applyOpticalMargin API options</caption>
-							<thead><tr className="opacity-50 text-left"><th className="pb-2 pr-6 font-normal">Option</th><th className="pb-2 pr-6 font-normal">Default</th><th className="pb-2 font-normal">Description</th></tr></thead>
-							<tbody className="opacity-70">
-								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors"><td className="py-2 pr-6 font-mono">hangStart</td><td className="py-2 pr-6">true</td><td className="py-2">Hang opening punctuation at line starts.</td></tr>
-								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors"><td className="py-2 pr-6 font-mono">hangEnd</td><td className="py-2 pr-6">true</td><td className="py-2">Hang closing punctuation and sentence-end marks at line ends.</td></tr>
-								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors"><td className="py-2 pr-6 font-mono">threshold</td><td className="py-2 pr-6">0.5</td><td className="py-2">Minimum computed hang value in px. Characters whose hang falls below this are left flush.</td></tr>
-								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors"><td className="py-2 pr-6 font-mono">maxHangRatio</td><td className="py-2 pr-6">0.9</td><td className="py-2">Max proportion of advance width to hang (0–1).</td></tr>
-								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors"><td className="py-2 pr-6 font-mono">hangFractions</td><td className="py-2 pr-6">see desc.</td><td className="py-2">Per-character hang fraction overrides (0–1). Built-in defaults: hyphens &amp; dashes 1.0; quotes, periods, !, ?, &hellip;, ), ] 0.8; (, [, commas, semicolons, colons 0.6. Pass your own map to override any character.</td></tr>
+							<caption className="sr-only">applyOpticalMargin API options</caption>
+							<thead>
+								<tr className="text-subtle text-left">
+									<th className="pb-2 pr-6 font-normal">Option</th>
+									<th className="pb-2 pr-6 font-normal">Default</th>
+									<th className="pb-2 font-normal">Description</th>
+								</tr>
+							</thead>
+							<tbody className="text-muted">
+								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors">
+									<td className="py-2 pr-6 font-mono">hangStart</td>
+									<td className="py-2 pr-6">true</td>
+									<td className="py-2">Hang opening punctuation at line starts.</td>
+								</tr>
+								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors">
+									<td className="py-2 pr-6 font-mono">hangEnd</td>
+									<td className="py-2 pr-6">true</td>
+									<td className="py-2">Hang closing punctuation and sentence-end marks at line ends.</td>
+								</tr>
+								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors">
+									<td className="py-2 pr-6 font-mono">threshold</td>
+									<td className="py-2 pr-6">0.5</td>
+									<td className="py-2">Minimum computed hang value in px. Characters whose hang falls below this are left flush.</td>
+								</tr>
+								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors">
+									<td className="py-2 pr-6 font-mono">maxHangRatio</td>
+									<td className="py-2 pr-6">0.9</td>
+									<td className="py-2">Max proportion of advance width to hang (0–1).</td>
+								</tr>
+								<tr className="border-t border-white/10 hover:bg-white/5 transition-colors">
+									<td className="py-2 pr-6 font-mono">hangFractions</td>
+									<td className="py-2 pr-6">see desc.</td>
+									<td className="py-2">Per-character hang fraction overrides (0–1). Built-in defaults: hyphens &amp; dashes 1.0; quotes, periods, !, ?, &hellip;, ), ] 0.8; (, [, commas, semicolons, colons 0.6. Pass your own map to override any character.</td>
+								</tr>
 							</tbody>
 						</table>
 					</div>
 				</div>
 			</section>
 
-			<SiteFooter current="opticalMargin" npmVersion={version} siteVersion={version} />
+			<SiteFooter current="opticalMargin" npmVersion={version} siteVersion={siteVersion} />
 
 		</main>
 	)

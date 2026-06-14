@@ -191,7 +191,7 @@ export default function Demo() {
 	return (
 		<div className="w-full min-w-0">
 			<div className="flex flex-wrap items-center gap-3 mb-8 min-w-0">
-				<span className="text-xs uppercase tracking-widest opacity-50">Hang</span>
+				<span className="text-xs uppercase tracking-[0.18em] font-medium text-muted">Hang</span>
 				<button
 					onClick={() => setHangStart(v => !v)}
 					aria-pressed={hangStart}
@@ -224,7 +224,7 @@ export default function Demo() {
 				</button>
 
 				<div className="flex flex-col gap-1 ml-4 min-w-32">
-					<span className="text-xs uppercase tracking-widest opacity-50" id="om-threshold-label">Threshold (px)</span>
+					<span className="text-xs uppercase tracking-[0.18em] font-medium text-muted" id="om-threshold-label">Threshold (px)</span>
 					<input
 						type="range"
 						min={0}
@@ -241,10 +241,10 @@ export default function Demo() {
 						onTouchStart={e => e.stopPropagation()}
 						style={{ touchAction: 'pan-y', opacity: cursorMode ? 0.35 : 1 }}
 					/>
-					<span id={thresholdReadbackId} className="tabular-nums text-xs opacity-50 text-right" aria-live="polite">{effectiveThreshold}</span>
+					<span id={thresholdReadbackId} className="tabular-nums text-xs text-muted text-right" aria-live="polite">{effectiveThreshold}</span>
 				</div>
 				<div className="flex flex-col gap-1 ml-4 min-w-32">
-					<span className="text-xs uppercase tracking-widest opacity-50" id="om-maxhang-label">Max Hang Ratio</span>
+					<span className="text-xs uppercase tracking-[0.18em] font-medium text-muted" id="om-maxhang-label">Max Hang Ratio</span>
 					<input
 						type="range"
 						min={0}
@@ -260,7 +260,7 @@ export default function Demo() {
 						onTouchStart={e => e.stopPropagation()}
 						style={{ touchAction: 'pan-y' }}
 					/>
-					<span id={maxHangReadbackId} className="tabular-nums text-xs opacity-50 text-right" aria-live="polite">{maxHangRatio.toFixed(2)}</span>
+					<span id={maxHangReadbackId} className="tabular-nums text-xs text-muted text-right" aria-live="polite">{maxHangRatio.toFixed(2)}</span>
 				</div>
 
 				{/* Cursor mode — desktop/hover-capable devices only */}
@@ -321,7 +321,7 @@ export default function Demo() {
 				<BeforeAfterToggle active={beforeAfter} onClick={() => setComparing(v => !v)} overlayId={overlayId} />
 			</div>
 
-			<p className="text-xs opacity-50 italic mt-8" style={{ lineHeight: "1.8" }} aria-live="polite">
+			<p className="text-xs text-muted italic mt-8" style={{ lineHeight: "1.8" }} aria-live="polite">
 				{activeMode
 					? cursorMode
 						? 'Move cursor left/right to adjust threshold. Press Esc to exit.'
