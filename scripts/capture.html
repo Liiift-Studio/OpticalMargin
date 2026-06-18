@@ -1,0 +1,145 @@
+<!doctype html>
+<!-- Reproducible capture page for optical-margin README visuals.
+     Imports the real built bundle from ../dist/index.js and renders a
+     before (flush) / after (hung) comparison. Served over HTTP by capture.mjs. -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>optical-margin capture</title>
+<style>
+	@font-face {
+		font-family: "Merriweather";
+		src: url("/site/public/fonts/Merriweather.woff2") format("woff2");
+		font-weight: 300 700;
+		font-style: normal;
+		font-display: block;
+	}
+	:root {
+		/* opticalMargin golden-angle theme (matches the live site) */
+		--bg: oklch(0.13 0.045 196);
+		--fg: oklch(0.94 0.02 196);
+		--accent: oklch(0.80 0.12 196);
+		--rule: oklch(0.94 0.02 196 / 0.18);
+		--guide: oklch(0.80 0.13 30 / 0.9);
+	}
+	* { box-sizing: border-box; }
+	html, body { margin: 0; padding: 0; background: transparent; }
+	body {
+		font-family: "Merriweather", Georgia, serif;
+		color: var(--fg);
+		-webkit-font-smoothing: antialiased;
+		text-rendering: optimizeLegibility;
+	}
+
+	/* ─── Hero: stacked before / after with a margin guide line ─────────── */
+	.card {
+		width: 920px;
+		background: var(--bg);
+		border-radius: 18px;
+		padding: 44px 48px 40px;
+		display: flex;
+		flex-direction: column;
+		gap: 34px;
+	}
+	.panel { position: relative; }
+	.panel .label {
+		font-family: ui-sans-serif, system-ui, sans-serif;
+		font-size: 12px;
+		font-weight: 600;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+		color: var(--accent);
+		margin: 0 0 14px;
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+	.panel .label::after {
+		content: "";
+		flex: 1;
+		height: 1px;
+		background: var(--rule);
+	}
+	.prose {
+		font-size: 24px;
+		line-height: 1.62;
+		font-weight: 300;
+		font-variation-settings: "wght" 300, "opsz" 24;
+		margin: 0;
+		/* hard left edge so the optical misalignment of flush punctuation is obvious */
+		padding-left: 0;
+	}
+	/* a faint vertical guide showing the intended margin edge */
+	.guide-wrap { position: relative; padding-left: 18px; }
+	.guide-wrap::before {
+		content: "";
+		position: absolute;
+		left: 0; top: 2px; bottom: 2px;
+		width: 2px;
+		background: var(--guide);
+		border-radius: 2px;
+	}
+	.divider { height: 1px; background: var(--rule); }
+	.foot {
+		font-family: ui-sans-serif, system-ui, sans-serif;
+		font-size: 13px;
+		color: var(--fg);
+		opacity: 0.6;
+		margin: 0;
+		letter-spacing: 0.01em;
+	}
+	.foot b { color: var(--accent); font-weight: 600; opacity: 1; }
+</style>
+</head>
+<body>
+<div class="card" id="card">
+	<div class="panel">
+		<p class="label">Without optical margin</p>
+		<div class="guide-wrap">
+			<p class="prose" id="before"></p>
+		</div>
+	</div>
+	<div class="divider"></div>
+	<div class="panel">
+		<p class="label">With optical margin</p>
+		<div class="guide-wrap">
+			<p class="prose" id="after"></p>
+		</div>
+	</div>
+	<p class="foot">Quotes, dashes and commas hang past the edge so the <b>letters</b> hold the optical margin &mdash; measured from real font metrics, not a lookup table.</p>
+</div>
+
+<!-- The built bundle imports "react" at module top-level (for the optional hook/component).
+     We only use the framework-agnostic core here, so map react/react-dom to an empty stub. -->
+<script type="importmap">
+{
+	"imports": {
+		"react": "/scripts/react-stub.js",
+		"react-dom": "/scripts/react-stub.js",
+		"react/jsx-runtime": "/scripts/react-stub.js"
+	}
+}
+</script>
+<script type="module">
+	import { applyOpticalMargin, getCleanHTML } from "/dist/index.js"
+
+	const SAMPLE = `“The best typography is invisible,” Tschichold wrote. “It disappears into the reading.” Quotes, commas, and dashes — every mark smaller than a letter — should hang past the edge.`
+
+	const before = document.getElementById("before")
+	const after = document.getElementById("after")
+	before.textContent = SAMPLE
+	after.textContent = SAMPLE
+
+	async function go() {
+		await document.fonts.ready
+		// small settle so layout + metrics are final
+		await new Promise(r => setTimeout(r, 120))
+		const original = getCleanHTML(after)
+		applyOpticalMargin(after, original, { hangStart: true, hangEnd: true })
+		document.documentElement.dataset.ready = "1"
+	}
+	go()
+</script>
+</body>
+</html>

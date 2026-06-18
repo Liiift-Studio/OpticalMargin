@@ -20,6 +20,7 @@
 		"build": "vite build",
 		"test": "vitest",
 		"test:run": "vitest run",
+		"capture": "node scripts/capture.mjs",
 		"lint": "tsc --noEmit",
 		"prepublishOnly": "npm run test:run && npm run build"
 	},

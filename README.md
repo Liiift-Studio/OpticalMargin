@@ -2,11 +2,15 @@
 
 [![npm](https://img.shields.io/npm/v/%40liiift-studio%2Fopticalmargin.svg)](https://www.npmjs.com/package/@liiift-studio/opticalmargin) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![part of liiift type-tools](https://img.shields.io/badge/liiift-type--tools-blueviolet)](https://github.com/Liiift-Studio/type-tools)
 
+**Hanging punctuation** nudges marks smaller than a letter — opening quotes, commas, dashes, periods — slightly past the edge of a text block, so the *letters*, not the punctuation, hold a clean optical margin. It's what fine book typesetting does to make a column edge look straight.
+
 CSS `hanging-punctuation` is Safari-only, uses hard-coded character tables, and gives no control over hang amount, threshold, or which characters hang. Optical Margin measures each punctuation character's actual hang amount from Canvas font metrics — not a lookup table — and applies it as a negative margin. Works in every browser, with every font.
+
+![Two paragraphs of the same quotation. In the top panel the opening quote sits flush, indenting the first letter inside the margin guide. In the bottom panel the opening quote hangs left past the guide so the letter T aligns to the margin, and line-end dashes extend to a clean right edge.](https://raw.githubusercontent.com/Liiift-Studio/OpticalMargin/main/assets/hero-before-after.png?v=1)
 
 **[opticalmargin.com](https://opticalmargin.com)** · [npm](https://www.npmjs.com/package/@liiift-studio/opticalmargin) · [GitHub](https://github.com/Liiift-Studio/OpticalMargin)
 
-TypeScript · Canvas measurement · Cross-browser · React + Vanilla JS
+TypeScript · Zero dependencies · Canvas measurement · Cross-browser · React + Vanilla JS
 
 ---
 
@@ -39,12 +43,23 @@ Both `hangStart` and `hangEnd` default to `true`, so no props are required for s
 ```tsx
 import { useOpticalMargin } from '@liiift-studio/opticalmargin'
 
-// Inside a React component (options object is required; pass {} for defaults):
-const ref = useOpticalMargin({})
-return <blockquote ref={ref}>{children}</blockquote>
+// The options object is required; pass {} for defaults.
+function Quote({ children }: { children: React.ReactNode }) {
+  const ref = useOpticalMargin({})
+  return <blockquote ref={ref}>{children}</blockquote>
+}
 ```
 
-The hook re-runs automatically on resize via `ResizeObserver` and after fonts load via `document.fonts.ready`.
+The hook re-runs automatically on resize via `ResizeObserver` (width changes only — vertical-only resizes are skipped) and after fonts load via `document.fonts.ready`.
+
+Inline markup is preserved — italics, bold, and links survive the per-line wrapping:
+
+```tsx
+<OpticalMarginText as="blockquote">
+  “Typography is the craft of endowing <em>human language</em> with a
+  durable <strong>visual form</strong>.”
+</OpticalMarginText>
+```
 
 ### Vanilla JS
 
@@ -88,7 +103,7 @@ const opts: OpticalMarginOptions = { threshold: 1, maxHangRatio: 0.8 }
 | `hangEnd` | `true` | Hang closing punctuation and sentence-end marks at line ends |
 | `threshold` | `0.5` | Minimum effective hang amount in px before applying (compared after `hangFractions` multiplication). Prevents near-zero corrections on characters that barely protrude |
 | `maxHangRatio` | `0.9` | Max proportion of the character's advance width to hang (0–1). Clamped to [0,1]. Caps extreme hangs on very wide punctuation |
-| `hangFractions` | see below | Per-character hang fraction overrides. Keys are single characters; values are fractions (0–1) of the measured hang to apply (0 = no hang, 1 = full hang). You can pass a sparse object — unspecified characters fall back to built-in defaults. Default fractions: hyphens/dashes `1.0`, quotes/parens/brackets `0.8`, periods/exclamations `0.8`, commas/semicolons/colons `0.6` |
+| `hangFractions` | see below | Per-character hang fraction overrides. Keys are single characters; values are fractions (0–1) of the measured hang to apply (0 = no hang, 1 = full hang). You can pass a sparse object — unspecified characters fall back to built-in defaults. Default fractions: hyphens/dashes (`-` `–` `—`) `1.0`; quotes (`"` `'` `«` `»`) and `.` `!` `?` `…` `)` `]` `0.8`; opening parens/brackets (`(` `[`) and `,` `;` `:` `0.6` |
 
 **`OpticalMarginText` component only:**
 
@@ -111,6 +126,20 @@ Canvas `measureText` returns both `width` (advance width) and `actualBoundingBox
 Falls back to zero hang (no margin applied) in environments without Canvas support (e.g. SSR).
 
 **Line break safety:** Line breaks are locked to the browser's natural layout. Word breaks never change — the negative margins only affect the optical edge position, not line content or width.
+
+**Browser support:** Works in every modern browser. The hang amounts come from Canvas `TextMetrics.actualBoundingBoxLeft` / `actualBoundingBoxRight`, supported in Chrome/Edge 77+, Safari 11.1+, and Firefox 74+. If those metrics are unavailable (very old engines, or SSR with no Canvas), the measured hang is `0` and text renders flush — the same as not applying the effect. There is no layout breakage on unsupported platforms, so it is safe to ship unconditionally.
+
+---
+
+## Accessibility
+
+Optical Margin is a presentation-only transform — the injected markup is hidden from assistive technology and never alters the readable text:
+
+- Injected word and line wrappers carry `role="presentation"`, so screen readers traverse the text as a single uninterrupted flow.
+- Injected line-break elements (`<br data-om>`) are `aria-hidden="true"`.
+- On `OpticalMarginText`, `aria-label` and all other HTML attributes pass through to the root element unchanged.
+
+**Copy/paste caveat:** because the effect rebuilds the visual lines with real `<br>` elements, text copied from a processed element includes hard line breaks matching the on-screen wrap, rather than reflowing as one paragraph. If a verbatim, unbroken copy is important (e.g. quotable legal text), call `removeOpticalMargin(el, original)` before exposing the text for copy, or keep an off-screen flush copy as the canonical source.
 
 ---
 
