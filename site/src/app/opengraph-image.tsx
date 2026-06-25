@@ -16,7 +16,7 @@ export default async function Image() {
 		(
 			<div
 				style={{
-					background: '#290002',
+					background: '#271000',
 					width: '100%',
 					height: '100%',
 					display: 'flex',
@@ -27,7 +27,7 @@ export default async function Image() {
 				}}
 			>
 				{/* Label */}
-				<span style={{ fontSize: 13, letterSpacing: '0.18em', color: '#c7b1b1', textTransform: 'uppercase' }}>
+				<span style={{ fontSize: 13, letterSpacing: '0.18em', color: '#c4bdac', textTransform: 'uppercase' }}>
 					optical margin
 				</span>
 
@@ -35,34 +35,34 @@ export default async function Image() {
 				<div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 48 }}>
 						<div style={{ display: 'flex', alignItems: 'baseline' }}>
-							<span style={{ fontSize: 18, color: '#c7b1b1', marginRight: 2 }}>&quot;</span>
-							<div style={{ width: 480, height: 3, background: '#342c2b', borderRadius: 2 }} />
+							<span style={{ fontSize: 18, color: '#c4bdac', marginRight: 2 }}>&quot;</span>
+							<div style={{ width: 480, height: 3, background: '#7e7a70', borderRadius: 2 }} />
 						</div>
-						<div style={{ width: 520, height: 3, background: '#342c2b', borderRadius: 2 }} />
-						<div style={{ width: 500, height: 3, background: '#342c2b', borderRadius: 2 }} />
+						<div style={{ width: 520, height: 3, background: '#7e7a70', borderRadius: 2 }} />
+						<div style={{ width: 500, height: 3, background: '#7e7a70', borderRadius: 2 }} />
 						<div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', width: 520 }}>
-							<div style={{ width: 490, height: 3, background: '#342c2b', borderRadius: 2 }} />
-							<span style={{ fontSize: 14, color: '#c7b1b1', marginLeft: 2 }}>,&quot;</span>
+							<div style={{ width: 490, height: 3, background: '#7e7a70', borderRadius: 2 }} />
+							<span style={{ fontSize: 14, color: '#c4bdac', marginLeft: 2 }}>,&quot;</span>
 						</div>
 					</div>
-					<div style={{ fontSize: 76, color: '#faf3f3', lineHeight: 1.06, fontWeight: 300 }}>
+					<div style={{ fontSize: 76, color: '#f7f5ef', lineHeight: 1.06, fontWeight: 300 }}>
 						Hang it right.
 					</div>
-					<div style={{ fontSize: 76, color: '#c7b1b1', lineHeight: 1.06, fontWeight: 300 }}>
+					<div style={{ fontSize: 76, color: '#c4bdac', lineHeight: 1.06, fontWeight: 300 }}>
 						Every font.
 					</div>
 				</div>
 
 				{/* Footer */}
 				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-					<div style={{ fontSize: 14, color: '#c7b1b1', letterSpacing: '0.04em', display: 'flex', gap: 20 }}>
+					<div style={{ fontSize: 14, color: '#c4bdac', letterSpacing: '0.04em', display: 'flex', gap: 20 }}>
 						<span>TypeScript</span>
 						<span style={{ opacity: 0.4 }}>·</span>
 						<span>Canvas measurement</span>
 						<span style={{ opacity: 0.4 }}>·</span>
 						<span>Cross-browser</span>
 					</div>
-					<div style={{ fontSize: 13, color: '#9e8e8d', letterSpacing: '0.04em' }}>
+					<div style={{ fontSize: 13, color: '#9d988b', letterSpacing: '0.04em' }}>
 						opticalmargin.com
 					</div>
 				</div>
